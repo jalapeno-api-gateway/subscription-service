@@ -33,6 +33,6 @@ forward:
   - 2350:2345
   - 8085:8080
 environment:
-  - GRAPH_DB_FEEDER_ADDRESS=gdbf-svc:9001
+  - GRAPH_DB_FEEDER_ADDRESS=gdbf-svc:9000
   - TSDB_FEEDER_ADDRESS=tsdb-service:9000
 ```
