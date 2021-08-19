@@ -6,13 +6,16 @@ The push-service is part of the Jalapeño API Gateway. It allows SR-Apps to subs
 ```bash
 $ protoc --proto_path=./proto/pushservice --go_out=./proto/pushservice --go_opt=paths=source_relative --go-grpc_out=./proto/pushservice --go-grpc_opt=paths=source_relative ./proto/pushservice/pushservice.proto
 ```
-- When the file `proto/tsdb-feeder/tsdb-feeder.proto` is updated, this command needs to be run to recompile the code:
+## Setting Up Development Environment
+Make sure you have setup the [global development environment](https://gitlab.ost.ch/ins/jalapeno-api/request-service/-/wikis/Development-Environment) first.
+
+## Initialize Okteto
 ```bash
-$ protoc --proto_path=./proto/tsdb-feeder --go_out=./proto/tsdb-feeder --go_opt=paths=source_relative --go-grpc_out=./proto/tsdb-feeder --go-grpc_opt=paths=source_relative ./proto/tsdb-feeder/tsdb-feeder.proto
+$ git clone ssh://git@gitlab.ost.ch:45022/ins/jalapeno-api/push-service.git
 ```
-- When the file `proto/graph-db-feeder/graph-db-feeder.proto` is updated, this command needs to be run to recompile the code:
+- Initialize okteto:
 ```bash
-$ protoc --proto_path=./proto/graph-db-feeder --go_out=./proto/graph-db-feeder --go_opt=paths=source_relative --go-grpc_out=./proto/graph-db-feeder --go-grpc_opt=paths=source_relative ./proto/graph-db-feeder/graph-db-feeder.proto
+$ okteto init
 ```
 - Replace content of okteto.yml with the following:
 ```yml
@@ -20,7 +23,7 @@ name: push-service
 autocreate: true
 image: okteto/golang:1
 command: bash
-namespace: jagw-dev-<namespace-name>
+namespace: jagw-dev-michel
 securityContext:
   capabilities:
     add:
@@ -37,6 +40,12 @@ forward:
   - 2350:2345
   - 8085:8080
 environment:
-  - GRAPH_DB_FEEDER_ADDRESS=gdbf-svc:9000
-  - TSDB_FEEDER_ADDRESS=tsdb-service:9000
+  - APP_SERVER_ADDRESS=0.0.0.0:9000
+  - ARANGO_DB=http://10.20.1.24:30852
+  - ARANGO_DB_USER=root
+  - ARANGO_DB_PASSWORD=jalapeno
+  - ARANGO_DB_NAME=jalapeno
+  - KAFKA_ADDRESS=10.20.1.24:30092
+  - LSNODE_KAFKA_TOPIC=gobmp.parsed.ls_node_events
+  - LSLINK_KAFKA_TOPIC=gobmp.parsed.ls_link_events
 ```
