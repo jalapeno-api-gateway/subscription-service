@@ -32,6 +32,14 @@ func convertToGrpcDataRateEvent(event subscribers.DataRateEvent) DataRateEvent {
 	}
 }
 
+func convertToGrpcTelmetryEventTotalPacketsSent(event subscribers.TelemetryEvent) TelemetryEvent {
+	return TelemetryEvent{Key: event.Key, Value: event.TotalPacketsSent}
+}
+
+func convertToGrpcTelmetryEventTotalPacketsReceived(event subscribers.TelemetryEvent) TelemetryEvent {
+	return TelemetryEvent{Key: event.Key, Value: event.TotalPacketsReceived}
+}
+
 func convertToGrpcLsNode(nodeDocument arangodb.LsNodeDocument) LsNode {
 	return LsNode{
 		Key:      nodeDocument.Key,

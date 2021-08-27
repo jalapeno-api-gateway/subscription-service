@@ -27,9 +27,12 @@ func consumeMessages(consumer sarama.Consumer, lsNodeEventsConsumer sarama.Parti
 			LsLinkEvents <- unmarshalKafkaMessage(msg)
 		case msg := <-telemetryConsumer.Messages():
 			kafkaTelemetryDataRateEvent := createKafkaTelemetryDataRateEvent(string(msg.Value))
-			// for more telemtryAttributes create more kafkaTelemetryXEvents and write them to different channels
+			kafkaTelemetryEvent := createKafkaTelemetryEvent(string(msg.Value))
 			if kafkaTelemetryDataRateEvent.DataRate != -1 { //Not all telemetry messages contain a data Rate (if the data Rate is not present a event with negative datarate is created)
 				TelemetryDataRateEvents <- kafkaTelemetryDataRateEvent
+			}
+			if kafkaTelemetryEvent.ContainsData {
+				TelemetryEvents <- kafkaTelemetryEvent
 			}
 		}
 	}

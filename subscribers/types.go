@@ -37,6 +37,13 @@ type DataRateEvent struct {
 	DataRate influxdb.DataRate
 }
 
+type TelemetryEvent struct {
+	Key                  string
+	DataRate             int64
+	TotalPacketsSent     int64
+	TotalPacketsReceived int64
+}
+
 //
 // ---> SUBSCRIBER UPDATES <---
 //
@@ -54,4 +61,9 @@ type lsLinkSubscriberUpdate struct {
 type dataRateSubscriberUpdate struct {
 	Action        Action
 	UpdateChannel chan DataRateEvent
+}
+
+type telemetrySubscriberUpdate struct {
+	Action        Action
+	UpdateChannel chan TelemetryEvent
 }

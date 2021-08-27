@@ -29,13 +29,48 @@ func (s *pushServiceServer) SubscribeToDataRates(subscription *DataRateSubscript
 		event := <-events
 		if len(subscription.Ipv4Addresses) == 0 || helpers.IsInSlice(subscription.Ipv4Addresses, event.Key) {
 			response := convertToGrpcDataRateEvent(event)
-			log.Print("response.DataRate")
-			log.Print(response.DataRate)
-			log.Print("response.Action")
-			log.Print(response.Action)
-			log.Print("response.Key")
-			log.Print(response.Key)
+			err := responseStream.Send(&response)
+			if err != nil {
+				return err
+			}
+		}
+	}
+}
 
+func (s *pushServiceServer) SubscribeToTotalPacketsSent(subscription *TelemetrySubscription, responseStream PushService_SubscribeToTotalPacketsSentServer) error {
+	log.Printf("SR-App subscribing to TotalPacketsSent\n")
+
+	events := make(chan subscribers.TelemetryEvent)
+	subscribers.SubscribeToTelemetryEvents(events)
+	defer func() {
+		subscribers.UnsubscribeFromTelemetryEvents(events)
+	}()
+
+	for {
+		event := <-events
+		if len(subscription.Ipv4Addresses) == 0 || helpers.IsInSlice(subscription.Ipv4Addresses, event.Key) {
+			response := convertToGrpcTelmetryEventTotalPacketsSent(event)
+			err := responseStream.Send(&response)
+			if err != nil {
+				return err
+			}
+		}
+	}
+}
+
+func (s *pushServiceServer) SubscribeToTotalPacketsReceived(subscription *TelemetrySubscription, responseStream PushService_SubscribeToTotalPacketsReceivedServer) error {
+	log.Printf("SR-App subscribing to TotalPacketsReceived\n")
+
+	events := make(chan subscribers.TelemetryEvent)
+	subscribers.SubscribeToTelemetryEvents(events)
+	defer func() {
+		subscribers.UnsubscribeFromTelemetryEvents(events)
+	}()
+
+	for {
+		event := <-events
+		if len(subscription.Ipv4Addresses) == 0 || helpers.IsInSlice(subscription.Ipv4Addresses, event.Key) {
+			response := convertToGrpcTelmetryEventTotalPacketsReceived(event)
 			err := responseStream.Send(&response)
 			if err != nil {
 				return err

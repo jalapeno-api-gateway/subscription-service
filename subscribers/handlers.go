@@ -3,10 +3,28 @@ package subscribers
 func StartSubscriptionService() {
 	go handleLsNodeSubscribers()
 	go handleLsLinkSubscribers()
-	handleTelemetrySubscriber()
+	go handleTelemetryDataRateSubscribers()
+	handleTelemetrySubscribers()
 }
 
-func handleTelemetrySubscriber() {
+func handleTelemetrySubscribers() {
+	for {
+		subscriptionUpdate := <-telemetrySubscriberUpdates
+		if subscriptionUpdate.Action == Subscribe {
+			telemetrySubscribers = append(telemetrySubscribers, subscriptionUpdate.UpdateChannel)
+		} else if subscriptionUpdate.Action == Unsubscribe {
+			index := -1
+			for i, updateChannel := range telemetrySubscribers { // Find subscriber index in array
+				if subscriptionUpdate.UpdateChannel == updateChannel {
+					index = i
+				}
+			}
+			telemetrySubscribers = append(telemetrySubscribers[:index], telemetrySubscribers[:index+1]...) // Remove subscriber from array
+		}
+	}
+}
+
+func handleTelemetryDataRateSubscribers() {
 	for {
 		subscriptionUpdate := <-dataRateSubscriberUpdates
 		if subscriptionUpdate.Action == Subscribe {

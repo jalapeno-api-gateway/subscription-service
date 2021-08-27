@@ -20,8 +20,20 @@ func StartEventProcessing() {
 		case event := <-kafka.TelemetryDataRateEvents:
 			handleTelemetryDataRateEvent(event)
 			// more cases for different telemetry attributes
+		case event := <-kafka.TelemetryEvents:
+			handleTelemetryEvent(event)
 		}
 	}
+}
+
+func handleTelemetryEvent(event kafka.KafkaTelemetryEventMessage) {
+	telemetryEvent := subscribers.TelemetryEvent{
+		Key:                  event.IpAddress,
+		DataRate:             event.DataRate,
+		TotalPacketsSent:     event.TotalPacketsSent,
+		TotalPacketsReceived: event.TotalPacketsReceived,
+	}
+	subscribers.NotifyTelemetrySubscribers(telemetryEvent)
 }
 
 func handleTelemetryDataRateEvent(event kafka.KafkaTelemetryDataRateEventMessage) {

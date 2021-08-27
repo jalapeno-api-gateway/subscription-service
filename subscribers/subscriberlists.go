@@ -3,10 +3,12 @@ package subscribers
 var lsNodeSubscribers []chan LsNodeEvent
 var lsLinkSubscribers []chan LsLinkEvent
 var dataRateSubscribers []chan DataRateEvent
+var telemetrySubscribers []chan TelemetryEvent
 
 var lsNodeSubscriberUpdates = make(chan lsNodeSubscriberUpdate)
 var lsLinkSubscriberUpdates = make(chan lsLinkSubscriberUpdate)
 var dataRateSubscriberUpdates = make(chan dataRateSubscriberUpdate)
+var telemetrySubscriberUpdates = make(chan telemetrySubscriberUpdate)
 
 func SubscribeToLsNodeEvents(updateChannel chan LsNodeEvent) {
 	lsNodeSubscriberUpdates <- lsNodeSubscriberUpdate{Action: Subscribe, UpdateChannel: updateChannel}
@@ -30,4 +32,12 @@ func SubscribeToDataRateEvents(updateChannel chan DataRateEvent) {
 
 func UnsubscribeFromDataRateEvents(updateChannel chan DataRateEvent) {
 	dataRateSubscriberUpdates <- dataRateSubscriberUpdate{Action: Unsubscribe, UpdateChannel: updateChannel}
+}
+
+func SubscribeToTelemetryEvents(updateChannel chan TelemetryEvent) {
+	telemetrySubscriberUpdates <- telemetrySubscriberUpdate{Action: Subscribe, UpdateChannel: updateChannel}
+}
+
+func UnsubscribeFromTelemetryEvents(updateChannel chan TelemetryEvent) {
+	telemetrySubscriberUpdates <- telemetrySubscriberUpdate{Action: Unsubscribe, UpdateChannel: updateChannel}
 }

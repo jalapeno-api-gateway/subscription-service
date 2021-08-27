@@ -17,3 +17,9 @@ func NotifyDataRateSubscribers(event DataRateEvent) {
 		subscriber <- event
 	}
 }
+
+func NotifyTelemetrySubscribers(event TelemetryEvent) {
+	for _, subscriber := range telemetrySubscribers {
+		subscriber <- event
+	}
+}

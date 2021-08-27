@@ -11,3 +11,11 @@ type KafkaTelemetryDataRateEventMessage struct {
 	IpAddress string
 	DataRate  int64
 }
+
+type KafkaTelemetryEventMessage struct {
+	IpAddress            string
+	DataRate             int64
+	TotalPacketsSent     int64
+	TotalPacketsReceived int64
+	ContainsData         bool
+}
