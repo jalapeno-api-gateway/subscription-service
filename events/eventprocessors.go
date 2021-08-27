@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/arangodb"
+	"gitlab.ost.ch/ins/jalapeno-api/push-service/influxdb"
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/kafka"
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/subscribers"
 )
@@ -16,8 +17,23 @@ func StartEventProcessing() {
 			handleLsNodeEvent(event)
 		case event := <-kafka.LsLinkEvents:
 			handleLsLinkEvent(event)
+		case event := <-kafka.TelemetryDataRateEvents:
+			handleTelemetryDataRateEvent(event)
+			// more cases for different telemetry attributes
 		}
 	}
+}
+
+func handleTelemetryDataRateEvent(event kafka.KafkaTelemetryDataRateEventMessage) {
+	//Get Data from kafka message
+	//Handle DataRates
+	dataRate := influxdb.DataRate{Ipv4Address: event.IpAddress, DataRate: event.DataRate}
+	dataRateEvent := subscribers.DataRateEvent{Key: event.IpAddress, DataRate: dataRate}
+	subscribers.NotifyDataRateSubscribers(dataRateEvent)
+
+	// log.Printf("TELEMETRY DATA")
+	// log.Printf(event.IpAddress)
+	// log.Print(event.DataRate)
 }
 
 func handleLsNodeEvent(event kafka.KafkaEventMessage) {
@@ -25,10 +41,10 @@ func handleLsNodeEvent(event kafka.KafkaEventMessage) {
 	updatedNode := arangodb.LsNodeDocument{}
 
 	log.Printf("LsNode [%s]: %s\n", event.Action, event.Key)
-	if (event.Action != "del") {
+	if event.Action != "del" {
 		updatedNode = arangodb.FetchLsNode(ctx, event.Key)
 	}
-	
+
 	nodeEvent := subscribers.LsNodeEvent{Action: event.Action, Key: event.Key, LsNodeDocument: updatedNode}
 	subscribers.NotifyLsNodeSubscribers(nodeEvent)
 }
@@ -38,7 +54,7 @@ func handleLsLinkEvent(event kafka.KafkaEventMessage) {
 	updatedLink := arangodb.LsLinkDocument{}
 
 	log.Printf("LsLink [%s]: %s\n", event.Action, event.Key)
-	if (event.Action != "del") {
+	if event.Action != "del" {
 		updatedLink = arangodb.FetchLsLink(ctx, event.Key)
 	}
 

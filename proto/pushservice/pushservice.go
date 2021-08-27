@@ -7,7 +7,6 @@ import (
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/subscribers"
 )
 
-
 type pushServiceServer struct {
 	UnimplementedPushServiceServer
 }
@@ -20,8 +19,29 @@ func NewServer() *pushServiceServer {
 func (s *pushServiceServer) SubscribeToDataRates(subscription *DataRateSubscription, responseStream PushService_SubscribeToDataRatesServer) error {
 	log.Printf("SR-App subscribing to DataRates\n")
 
-	log.Printf("Subscription to DataRates ended")
-	return nil
+	events := make(chan subscribers.DataRateEvent)
+	subscribers.SubscribeToDataRateEvents(events)
+	defer func() {
+		subscribers.UnsubscribeFromDataRateEvents(events)
+	}()
+
+	for {
+		event := <-events
+		if len(subscription.Ipv4Addresses) == 0 || helpers.IsInSlice(subscription.Ipv4Addresses, event.Key) {
+			response := convertToGrpcDataRateEvent(event)
+			log.Print("response.DataRate")
+			log.Print(response.DataRate)
+			log.Print("response.Action")
+			log.Print(response.Action)
+			log.Print("response.Key")
+			log.Print(response.Key)
+
+			err := responseStream.Send(&response)
+			if err != nil {
+				return err
+			}
+		}
+	}
 }
 
 func (s *pushServiceServer) SubscribeToLsNodes(subscription *LsNodeSubscription, responseStream PushService_SubscribeToLsNodesServer) error {
@@ -34,7 +54,7 @@ func (s *pushServiceServer) SubscribeToLsNodes(subscription *LsNodeSubscription,
 	}()
 
 	for {
-		event := <- events
+		event := <-events
 		if len(subscription.Keys) == 0 || helpers.IsInSlice(subscription.Keys, event.Key) {
 			response := convertToGrpcLsNodeEvent(event)
 			err := responseStream.Send(&response)
@@ -55,7 +75,7 @@ func (s *pushServiceServer) SubscribeToLsLinks(subscription *LsLinkSubscription,
 	}()
 
 	for {
-		event := <- events
+		event := <-events
 		if len(subscription.Keys) == 0 || helpers.IsInSlice(subscription.Keys, event.Key) {
 			response := convertToGrpcLsLinkEvent(event)
 			err := responseStream.Send(&response)

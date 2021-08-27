@@ -18,7 +18,7 @@ func main() {
 	kafka.StartEventConsumption()
 	go events.StartEventProcessing()
 	go subscribers.StartSubscriptionService()
-	
+
 	serverAddress := os.Getenv("APP_SERVER_ADDRESS")
 	lis, err := net.Listen("tcp", serverAddress)
 	if err != nil {
@@ -26,9 +26,9 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	
+
 	signals := helpers.WatchInterruptSignals()
-	go func(){
+	go func() {
 		<-signals
 		grpcServer.Stop()
 	}()

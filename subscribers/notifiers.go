@@ -11,3 +11,9 @@ func NotifyLsLinkSubscribers(event LsLinkEvent) {
 		subscriber <- event
 	}
 }
+
+func NotifyDataRateSubscribers(event DataRateEvent) {
+	for _, subscriber := range dataRateSubscribers {
+		subscriber <- event
+	}
+}
