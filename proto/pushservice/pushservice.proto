@@ -56,12 +56,13 @@ message DataRateEvent {
 
 message TelemetrySubscription {
     repeated string ipv4addresses = 1;
+    //all fields of requested data
 }
 
 message TelemetryEvent {
-    string action = 1;
-    string key = 2; //key is ipv4address 
-    int64 value = 3; 
+    string action = 1; // delete
+    string key = 2; //key is ipv4address /optional?
+    int64 value = 3; //byteArray; empty values?
 }
 
 service PushService {
@@ -70,4 +71,5 @@ service PushService {
     rpc SubscribeToLsLinks(LsLinkSubscription) returns (stream LsLinkEvent) {}
     rpc SubscribeToTotalPacketsSent(TelemetrySubscription) returns (stream TelemetryEvent) {}
     rpc SubscribeToTotalPacketsReceived(TelemetrySubscription) returns (stream TelemetryEvent) {}
+    //Todo RPC method with subscription containing requested values
 }

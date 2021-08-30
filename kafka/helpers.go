@@ -28,6 +28,7 @@ func createKafkaTelemetryEvent(telemetryString string) KafkaTelemetryEventMessag
 	//loopback update messaged seem to contain no valuable metrics
 	if indexOfDataRate == -1 || indexOfIpAddress == -1 || indexOfTotalPacketsSent == -1 || indexOfTotalPacketsReceived == -1 { // if the dataRate or IP is not contained in the telemetry message return an empty Event
 		return KafkaTelemetryEventMessage{"", -1, -1, -1, false} //empty message
+		//return error if loopback update (without data)
 	}
 
 	dataRate := getDataRateFromTelemetryData(telemetryString)
@@ -68,6 +69,7 @@ func getIpAddressFromTelemetryData(telemetryString string) string {
 	return ipAddressRemovedApostrophe
 }
 
+//Merge methods into one generic
 func getDataRateFromTelemetryData(telemetryString string) int {
 	indexOfDataRate := strings.Index(telemetryString, "data_rates/output_data_rate")
 	substring1 := telemetryString[indexOfDataRate:]

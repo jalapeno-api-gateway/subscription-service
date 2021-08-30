@@ -39,5 +39,6 @@ func SubscribeToTelemetryEvents(updateChannel chan TelemetryEvent) {
 }
 
 func UnsubscribeFromTelemetryEvents(updateChannel chan TelemetryEvent) {
+	//TODO: Test unsubscribe
 	telemetrySubscriberUpdates <- telemetrySubscriberUpdate{Action: Unsubscribe, UpdateChannel: updateChannel}
 }
