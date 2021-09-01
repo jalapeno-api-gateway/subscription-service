@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/arangodb"
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/influxdb"
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/kafka"
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/subscribers"
 )
@@ -39,7 +38,7 @@ func handleTelemetryEvent(event kafka.KafkaTelemetryEventMessage) {
 func handleTelemetryDataRateEvent(event kafka.KafkaTelemetryDataRateEventMessage) {
 	//Get Data from kafka message
 	//Handle DataRates
-	dataRate := influxdb.DataRate{Ipv4Address: event.IpAddress, DataRate: event.DataRate}
+	dataRate := kafka.DataRate{Ipv4Address: event.IpAddress, DataRate: event.DataRate}
 	dataRateEvent := subscribers.DataRateEvent{Key: event.IpAddress, DataRate: dataRate}
 	subscribers.NotifyDataRateSubscribers(dataRateEvent)
 

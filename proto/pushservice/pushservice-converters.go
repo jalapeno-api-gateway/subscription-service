@@ -2,7 +2,7 @@ package pushservice
 
 import (
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/arangodb"
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/influxdb"
+	"gitlab.ost.ch/ins/jalapeno-api/push-service/kafka"
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/subscribers"
 )
 
@@ -60,7 +60,7 @@ func convertToGrpcLsLink(linkDocument arangodb.LsLinkDocument) LsLink {
 	}
 }
 
-func convertToGrpcDataRate(dataRate influxdb.DataRate) DataRate {
+func convertToGrpcDataRate(dataRate kafka.DataRate) DataRate {
 	return DataRate{
 		Ipv4Address: dataRate.Ipv4Address,
 		DataRate:    dataRate.DataRate,

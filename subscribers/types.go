@@ -2,7 +2,7 @@ package subscribers
 
 import (
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/arangodb"
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/influxdb"
+	"gitlab.ost.ch/ins/jalapeno-api/push-service/kafka"
 )
 
 //
@@ -34,7 +34,7 @@ type LsLinkEvent struct {
 
 type DataRateEvent struct {
 	Key      string
-	DataRate influxdb.DataRate
+	DataRate kafka.DataRate
 }
 
 type TelemetryEvent struct {

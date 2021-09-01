@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"strconv"
 	"strings"
@@ -18,17 +19,16 @@ func unmarshalKafkaMessage(msg *sarama.ConsumerMessage) KafkaEventMessage {
 	return event
 }
 
-func createKafkaTelemetryEvent(telemetryString string) KafkaTelemetryEventMessage {
+func createKafkaTelemetryEvent(telemetryString string) (KafkaTelemetryEventMessage, error) {
 	indexOfDataRate := strings.Index(telemetryString, "data_rates/output_data_rate")
 	indexOfIpAddress := strings.Index(telemetryString, "ip_information/ip_address")
 	indexOfTotalPacketsSent := strings.Index(telemetryString, "interface_statistics/full_interface_stats/packets_sent")
 	indexOfTotalPacketsReceived := strings.Index(telemetryString, "interface_statistics/full_interface_stats/packets_received")
 
-	//if any of the attributes dataRate, ip or totalPacketsSent is not in string its an update for a loopback address
-	//loopback update messaged seem to contain no valuable metrics
+	// If any of the attributes DataRate, IP or TotalPacketsSent is not in the string, it is an update for a loopback address
+	// Loopback update messages seem to contain no valuable metrics
 	if indexOfDataRate == -1 || indexOfIpAddress == -1 || indexOfTotalPacketsSent == -1 || indexOfTotalPacketsReceived == -1 { // if the dataRate or IP is not contained in the telemetry message return an empty Event
-		return KafkaTelemetryEventMessage{"", -1, -1, -1, false} //empty message
-		//return error if loopback update (without data)
+		return KafkaTelemetryEventMessage{"", -1, -1, -1}, errors.New("This kafka message is not a telemetry event.")
 	}
 
 	dataRate := getDataRateFromTelemetryData(telemetryString)
@@ -41,8 +41,7 @@ func createKafkaTelemetryEvent(telemetryString string) KafkaTelemetryEventMessag
 		DataRate:             int64(dataRate),
 		TotalPacketsSent:     int64(totalPacketsSent),
 		TotalPacketsReceived: int64(totalPacketsReceived),
-		ContainsData:         true,
-	}
+	}, nil
 }
 
 func createKafkaTelemetryDataRateEvent(telemetryString string) KafkaTelemetryDataRateEventMessage {
