@@ -12,14 +12,14 @@ func NotifyLsLinkSubscribers(event LsLinkEvent) {
 	}
 }
 
-func NotifyDataRateSubscribers(event DataRateEvent) {
-	for _, subscriber := range dataRateSubscribers {
+func NotifyPhysicalInterfaceSubscribers(event PhysicalInterfaceEvent) {
+	for _, subscriber := range physicalInterfaceSubscribers {
 		subscriber <- event
 	}
 }
 
-func NotifyTelemetrySubscribers(event TelemetryEvent) {
-	for _, subscriber := range telemetrySubscribers {
+func NotifyLoopbackInterfaceSubscribers(event LoopbackInterfaceEvent) {
+	for _, subscriber := range loopbackInterfaceSubscribers {
 		subscriber <- event
 	}
 }

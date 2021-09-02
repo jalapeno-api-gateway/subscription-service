@@ -2,13 +2,13 @@ package subscribers
 
 var lsNodeSubscribers []chan LsNodeEvent
 var lsLinkSubscribers []chan LsLinkEvent
-var dataRateSubscribers []chan DataRateEvent
-var telemetrySubscribers []chan TelemetryEvent
+var physicalInterfaceSubscribers []chan PhysicalInterfaceEvent
+var loopbackInterfaceSubscribers []chan LoopbackInterfaceEvent
 
 var lsNodeSubscriberUpdates = make(chan lsNodeSubscriberUpdate)
 var lsLinkSubscriberUpdates = make(chan lsLinkSubscriberUpdate)
-var dataRateSubscriberUpdates = make(chan dataRateSubscriberUpdate)
-var telemetrySubscriberUpdates = make(chan telemetrySubscriberUpdate)
+var physicalIntefaceSubscriberUpdates = make(chan physicalInterfaceSubscriberUpdate)
+var loopbackIntefaceSubscriberUpdates = make(chan loopbackInterfaceSubscriberUpdate)
 
 func SubscribeToLsNodeEvents(updateChannel chan LsNodeEvent) {
 	lsNodeSubscriberUpdates <- lsNodeSubscriberUpdate{Action: Subscribe, UpdateChannel: updateChannel}
@@ -26,19 +26,19 @@ func UnSubscribeFromLsLinkEvents(updateChannel chan LsLinkEvent) {
 	lsLinkSubscriberUpdates <- lsLinkSubscriberUpdate{Action: Unsubscribe, UpdateChannel: updateChannel}
 }
 
-func SubscribeToDataRateEvents(updateChannel chan DataRateEvent) {
-	dataRateSubscriberUpdates <- dataRateSubscriberUpdate{Action: Subscribe, UpdateChannel: updateChannel}
+func SubscribeToPhysicalInterfaceEvents(updateChannel chan PhysicalInterfaceEvent) {
+	physicalIntefaceSubscriberUpdates <- physicalInterfaceSubscriberUpdate{Action: Subscribe, UpdateChannel: updateChannel}
 }
 
-func UnsubscribeFromDataRateEvents(updateChannel chan DataRateEvent) {
-	dataRateSubscriberUpdates <- dataRateSubscriberUpdate{Action: Unsubscribe, UpdateChannel: updateChannel}
-}
-
-func SubscribeToTelemetryEvents(updateChannel chan TelemetryEvent) {
-	telemetrySubscriberUpdates <- telemetrySubscriberUpdate{Action: Subscribe, UpdateChannel: updateChannel}
-}
-
-func UnsubscribeFromTelemetryEvents(updateChannel chan TelemetryEvent) {
+func UnsubscribeFromPhysicalInterfaceEvents(updateChannel chan PhysicalInterfaceEvent) {
 	//TODO: Test unsubscribe
-	telemetrySubscriberUpdates <- telemetrySubscriberUpdate{Action: Unsubscribe, UpdateChannel: updateChannel}
+	physicalIntefaceSubscriberUpdates <- physicalInterfaceSubscriberUpdate{Action: Unsubscribe, UpdateChannel: updateChannel}
+}
+
+func SubscribeToLoopbackInterfaceEvents(updateChannel chan LoopbackInterfaceEvent) {
+	loopbackIntefaceSubscriberUpdates <- loopbackInterfaceSubscriberUpdate{Action: Subscribe, UpdateChannel: updateChannel}
+}
+
+func UnsubscribeFromLoopbackInterfaceEvents(updateChannel chan LoopbackInterfaceEvent) {
+	loopbackIntefaceSubscriberUpdates <- loopbackInterfaceSubscriberUpdate{Action: Unsubscribe, UpdateChannel: updateChannel}
 }

@@ -7,19 +7,15 @@ type KafkaEventMessage struct {
 	Action    string `json:"action,omitempty"`
 }
 
-type KafkaTelemetryDataRateEventMessage struct {
-	IpAddress string
-	DataRate  int64
+type PhysicalInterfaceEventMessage struct {
+	IpAddress		string
+	DataRate		int64
+	PacketsSent		int64
+	PacketsReceived	int64
 }
 
-type KafkaTelemetryEventMessage struct {
-	IpAddress            string
-	DataRate             int64
-	TotalPacketsSent     int64
-	TotalPacketsReceived int64
-}
-
-type DataRate struct {
-	Ipv4Address string
-	DataRate    int64
+type LoopbackInterfaceEventMessage struct {
+	IpAddress					string
+	State						string
+	LastStateTransitionTime		int64
 }

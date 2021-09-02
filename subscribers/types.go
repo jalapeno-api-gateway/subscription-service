@@ -2,7 +2,6 @@ package subscribers
 
 import (
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/arangodb"
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/kafka"
 )
 
 //
@@ -32,16 +31,17 @@ type LsLinkEvent struct {
 	LsLinkDocument arangodb.LsLinkDocument
 }
 
-type DataRateEvent struct {
-	Key      string
-	DataRate kafka.DataRate
+type PhysicalInterfaceEvent struct {
+	Ipv4Address		string
+	DataRate        int64
+	PacketsSent     int64
+	PacketsReceived int64
 }
 
-type TelemetryEvent struct {
-	Key                  string
-	DataRate             int64
-	TotalPacketsSent     int64
-	TotalPacketsReceived int64
+type LoopbackInterfaceEvent struct {
+	Ipv4Address					string
+	State           			string
+	LastStateTransitionTime     int64
 }
 
 //
@@ -58,12 +58,12 @@ type lsLinkSubscriberUpdate struct {
 	UpdateChannel chan LsLinkEvent
 }
 
-type dataRateSubscriberUpdate struct {
+type physicalInterfaceSubscriberUpdate struct {
 	Action        Action
-	UpdateChannel chan DataRateEvent
+	UpdateChannel chan PhysicalInterfaceEvent
 }
 
-type telemetrySubscriberUpdate struct {
+type loopbackInterfaceSubscriberUpdate struct {
 	Action        Action
-	UpdateChannel chan TelemetryEvent
+	UpdateChannel chan LoopbackInterfaceEvent
 }

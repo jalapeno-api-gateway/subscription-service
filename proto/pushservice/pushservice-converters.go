@@ -1,9 +1,19 @@
 package pushservice
 
 import (
+	"encoding/json"
+	"errors"
+
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/arangodb"
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/kafka"
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/subscribers"
+)
+
+const (
+	dataRate = "DataRate"
+	packetsSent = "PacketsSent"
+	packetsReceived = "PacketsReceived"
+	state = "State"
+	lastStateTransitionTime = "LastStateTransitionTime"
 )
 
 func convertToGrpcLsNodeEvent(event subscribers.LsNodeEvent) LsNodeEvent {
@@ -22,22 +32,6 @@ func convertToGrpcLsLinkEvent(event subscribers.LsLinkEvent) LsLinkEvent {
 		Key:    event.Key,
 		LsLink: &lsLink,
 	}
-}
-
-func convertToGrpcDataRateEvent(event subscribers.DataRateEvent) DataRateEvent {
-	dataRate := convertToGrpcDataRate(event.DataRate)
-	return DataRateEvent{
-		Key:      event.Key,
-		DataRate: &dataRate,
-	}
-}
-
-func convertToGrpcTelmetryEventTotalPacketsSent(event subscribers.TelemetryEvent) TelemetryEvent {
-	return TelemetryEvent{Key: event.Key, Value: event.TotalPacketsSent}
-}
-
-func convertToGrpcTelmetryEventTotalPacketsReceived(event subscribers.TelemetryEvent) TelemetryEvent {
-	return TelemetryEvent{Key: event.Key, Value: event.TotalPacketsReceived}
 }
 
 func convertToGrpcLsNode(nodeDocument arangodb.LsNodeDocument) LsNode {
@@ -60,9 +54,90 @@ func convertToGrpcLsLink(linkDocument arangodb.LsLinkDocument) LsLink {
 	}
 }
 
-func convertToGrpcDataRate(dataRate kafka.DataRate) DataRate {
-	return DataRate{
-		Ipv4Address: dataRate.Ipv4Address,
-		DataRate:    dataRate.DataRate,
+func convertLoopbackInterface(event subscribers.LoopbackInterfaceEvent, propertyNames []string) TelemetryEvent {
+	data := []*TelemetryData{}
+
+	if len(propertyNames) == 0 {
+		propertyNames = []string{
+			state,
+			lastStateTransitionTime,
+		}
 	}
+
+	for _, propertyName := range propertyNames {
+		telemetryData, err := getLoopbackInterfaceData(event, propertyName)
+		if err == nil {
+			data = append(data, &telemetryData)
+		}
+	}
+
+	return TelemetryEvent{
+		Ipv4Address: event.Ipv4Address,
+		Data: data,
+	}
+}
+
+func convertPhysicalInterface(event subscribers.PhysicalInterfaceEvent, propertyNames []string) TelemetryEvent {
+	data := []*TelemetryData{}
+
+	if len(propertyNames) == 0 {
+		propertyNames = []string{
+			dataRate,
+			packetsSent,
+			packetsReceived,
+		}
+	}
+
+	for _, propertyName := range propertyNames {
+		telemetryData, err := getPhysicalInterfaceData(event, propertyName)
+		if err == nil {
+			data = append(data, &telemetryData)
+		}
+	}
+
+	return TelemetryEvent{
+		Ipv4Address: event.Ipv4Address,
+		Data: data,
+	}
+}
+
+func getLoopbackInterfaceData(event subscribers.LoopbackInterfaceEvent, propertyName string) (TelemetryData, error) {
+	value := []byte{}
+	var err error
+
+	switch propertyName {
+		case state:
+			value, err = json.Marshal(event.State)
+		case lastStateTransitionTime:
+			value, err = json.Marshal(event.LastStateTransitionTime)
+		default:
+			err = errors.New("Invalid property name!")
+	}
+
+	if err != nil {
+		return TelemetryData{}, err
+	}
+	return TelemetryData{PropertyName: propertyName, Value: value}, nil
+}
+
+
+func getPhysicalInterfaceData(event subscribers.PhysicalInterfaceEvent, propertyName string) (TelemetryData, error) {
+	value := []byte{}
+	var err error
+
+	switch propertyName {
+		case dataRate:
+			value, err = json.Marshal(event.DataRate)
+		case packetsSent:
+			value, err = json.Marshal(event.PacketsSent)
+		case packetsReceived:
+			value, err = json.Marshal(event.PacketsReceived)
+		default:
+			err = errors.New("Invalid property name!")
+	}
+
+	if err != nil {
+		return TelemetryData{}, err
+	}
+	return TelemetryData{PropertyName: propertyName, Value: value}, nil
 }

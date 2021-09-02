@@ -2,12 +2,21 @@ package kafka
 
 import (
 	"encoding/json"
-	"errors"
 	"log"
 	"strconv"
 	"strings"
 
 	"github.com/Shopify/sarama"
+)
+
+const (
+	interfaceNameIdentifier = "interface_name"
+	ipAddressIdentifier = "ip_information/ip_address"
+	dataRateIdentifier = "data_rates/output_data_rate"
+	packetsSentIdentifier = "interface_statistics/full_interface_stats/packets_sent"
+	packetsReceivedIdentifier = "interface_statistics/full_interface_stats/packets_received"
+	stateIdentifier = "state"
+	lastStateTransitionTimeIdentifier = "last_state_transition_time"
 )
 
 func unmarshalKafkaMessage(msg *sarama.ConsumerMessage) KafkaEventMessage {
@@ -19,97 +28,88 @@ func unmarshalKafkaMessage(msg *sarama.ConsumerMessage) KafkaEventMessage {
 	return event
 }
 
-func createKafkaTelemetryEvent(telemetryString string) (KafkaTelemetryEventMessage, error) {
-	indexOfDataRate := strings.Index(telemetryString, "data_rates/output_data_rate")
-	indexOfIpAddress := strings.Index(telemetryString, "ip_information/ip_address")
-	indexOfTotalPacketsSent := strings.Index(telemetryString, "interface_statistics/full_interface_stats/packets_sent")
-	indexOfTotalPacketsReceived := strings.Index(telemetryString, "interface_statistics/full_interface_stats/packets_received")
+func createLoopbackInterfaceEvent(telemetryString string) LoopbackInterfaceEventMessage {
+	ipAddress := getIpAddress(telemetryString)
+	state := getState(telemetryString)
+	lastStateTransitionTime := getLastStateTransitionTime(telemetryString)
 
-	// If any of the attributes DataRate, IP or TotalPacketsSent is not in the string, it is an update for a loopback address
-	// Loopback update messages seem to contain no valuable metrics
-	if indexOfDataRate == -1 || indexOfIpAddress == -1 || indexOfTotalPacketsSent == -1 || indexOfTotalPacketsReceived == -1 { // if the dataRate or IP is not contained in the telemetry message return an empty Event
-		return KafkaTelemetryEventMessage{"", -1, -1, -1}, errors.New("This kafka message is not a telemetry event.")
+	return LoopbackInterfaceEventMessage{
+		IpAddress:       			ipAddress,
+		State:        				state,
+		LastStateTransitionTime:    int64(lastStateTransitionTime),
 	}
-
-	dataRate := getDataRateFromTelemetryData(telemetryString)
-	ipAddress := getIpAddressFromTelemetryData(telemetryString)
-	totalPacketsSent := getTotalPacketsSentFromTelemetryData(telemetryString)
-	totalPacketsReceived := getTotalPacketsReceivedFromTelemetryData(telemetryString)
-
-	return KafkaTelemetryEventMessage{
-		IpAddress:            ipAddress,
-		DataRate:             int64(dataRate),
-		TotalPacketsSent:     int64(totalPacketsSent),
-		TotalPacketsReceived: int64(totalPacketsReceived),
-	}, nil
 }
 
-func createKafkaTelemetryDataRateEvent(telemetryString string) KafkaTelemetryDataRateEventMessage {
-	//telemetryString contains all telelmetry attributes separated by comma
-	//e.g: Cisco-IOS-XR-pfi-im-cmd-oper:interfaces/interface-xr/interface,host=telegraf,interface_name=GigabitEthernet0/0/0/0
-	indexOfDataRate := strings.Index(telemetryString, "data_rates/output_data_rate")
-	indexOfIpAddress := strings.Index(telemetryString, "ip_information/ip_address")
-	if indexOfDataRate == -1 || indexOfIpAddress == -1 { // if the dataRate or IP is not contained in the telemetry message return an empty Event
-		return KafkaTelemetryDataRateEventMessage{"", -1}
+func createPhysicalInterfaceEvent(telemetryString string) PhysicalInterfaceEventMessage {
+	dataRate := getDataRate(telemetryString)
+	ipAddress := getIpAddress(telemetryString)
+	totalPacketsSent := getPacketsSent(telemetryString)
+	totalPacketsReceived := getPacketsReceived(telemetryString)
+
+	return PhysicalInterfaceEventMessage{
+		IpAddress:       ipAddress,
+		DataRate:        int64(dataRate),
+		PacketsSent:     int64(totalPacketsSent),
+		PacketsReceived: int64(totalPacketsReceived),
 	}
-	dataRate := getDataRateFromTelemetryData(telemetryString)
-	ipAddress := getIpAddressFromTelemetryData(telemetryString)
-	return KafkaTelemetryDataRateEventMessage{ipAddress, int64(dataRate)}
 }
 
-func getIpAddressFromTelemetryData(telemetryString string) string {
-	indexOfIpAddress := strings.Index(telemetryString, "ip_information/ip_address")
-	substring1 := telemetryString[indexOfIpAddress:]
-	indexOfComma := strings.Index(substring1, ",")
-	substring2 := substring1[:indexOfComma]
-	split := strings.Split(substring2, "=")
-	ipAddress := split[1]
-	ipAddressRemovedApostrophe := strings.Trim(ipAddress, "\"") //every ip address contains a leading and tailing apostrophe
-	return ipAddressRemovedApostrophe
+func isLoopbackEvent(telemetryString string) bool {
+	interfaceName := getInterfaceName(telemetryString)
+	return strings.HasPrefix(interfaceName, "Loopback")
 }
 
-//Merge methods into one generic
-func getDataRateFromTelemetryData(telemetryString string) int {
-	indexOfDataRate := strings.Index(telemetryString, "data_rates/output_data_rate")
-	substring1 := telemetryString[indexOfDataRate:]
-	indexOfComma := strings.Index(substring1, ",")
-	substring2 := substring1[:indexOfComma]
-	split := strings.Split(substring2, "=")
-	datarate := split[1]
-	datarateRemovedI := datarate[:len(datarate)-1] //every int value contains an i at the end
-	dataRateInt, err := strconv.Atoi(datarateRemovedI)
+func containsIpAddress(telemetryString string) bool {
+	return strings.Index(telemetryString, ipAddressIdentifier) != -1
+}
+
+func getInterfaceName(telemetryString string) string {
+	return extractStringValue(telemetryString, interfaceNameIdentifier)
+}
+
+func getState(telemetryString string) string {
+	untrimmedValue := extractStringValue(telemetryString, stateIdentifier)
+	trimmedValue := strings.Trim(untrimmedValue, "\"") //every ip address contains a leading and tailing apostrophe
+	return trimmedValue
+}
+
+func getIpAddress(telemetryString string) string {
+	untrimmedValue := extractStringValue(telemetryString, ipAddressIdentifier)
+	trimmedValue := strings.Trim(untrimmedValue, "\"") //every ip address contains a leading and tailing apostrophe
+	return trimmedValue
+}
+
+func getLastStateTransitionTime(telemetryString string) int {
+	return extractIntValue(telemetryString, lastStateTransitionTimeIdentifier)
+}
+
+func getDataRate(telemetryString string) int {
+	return extractIntValue(telemetryString, dataRateIdentifier)
+}
+
+func getPacketsSent(telemetryString string) int {
+	return extractIntValue(telemetryString, packetsSentIdentifier)
+}
+
+func getPacketsReceived(telemetryString string) int {
+	return extractIntValue(telemetryString, packetsReceivedIdentifier)
+}
+
+func extractIntValue(telemetryString string, propertyName string) int {
+	untrimmedValue := extractStringValue(telemetryString, propertyName)
+	trimmedValue := untrimmedValue[:len(untrimmedValue)-1] //every int value has the letter 'i' at the end
+	value, err := strconv.Atoi(trimmedValue)
 	if err != nil {
 		log.Fatalf("Failed to convert string to int: %v", err)
 	}
-	return dataRateInt
+	return value
 }
 
-func getTotalPacketsSentFromTelemetryData(telemetryString string) int {
-	indexOfTotalPacketsSent := strings.Index(telemetryString, "interface_statistics/full_interface_stats/packets_sent")
-	substring1 := telemetryString[indexOfTotalPacketsSent:]
+func extractStringValue(telemetryString string, propertyName string) string {
+	index := strings.Index(telemetryString, propertyName)
+	substring1 := telemetryString[index:]
 	indexOfComma := strings.Index(substring1, ",")
 	substring2 := substring1[:indexOfComma]
 	split := strings.Split(substring2, "=")
-	totalPacketsSent := split[1]
-	totalPacketsSentRemoveI := totalPacketsSent[:len(totalPacketsSent)-1] //every int value contains an i at the end
-	totalPacketsSentInt, err := strconv.Atoi(totalPacketsSentRemoveI)
-	if err != nil {
-		log.Fatalf("Failed to convert string to int: %v", err)
-	}
-	return totalPacketsSentInt
-}
-
-func getTotalPacketsReceivedFromTelemetryData(telemetryString string) int {
-	indexOfTotalPacketsReceived := strings.Index(telemetryString, "interface_statistics/full_interface_stats/packets_received")
-	substring1 := telemetryString[indexOfTotalPacketsReceived:]
-	indexOfComma := strings.Index(substring1, ",")
-	substring2 := substring1[:indexOfComma]
-	split := strings.Split(substring2, "=")
-	totalPacketsReceived := split[1]
-	totalPacketsReceivedRemoveI := totalPacketsReceived[:len(totalPacketsReceived)-1] //every int value contains an i at the end
-	totalPacketsReceivedInt, err := strconv.Atoi(totalPacketsReceivedRemoveI)
-	if err != nil {
-		log.Fatalf("Failed to convert string to int: %v", err)
-	}
-	return totalPacketsReceivedInt
+	return split[1]
 }
