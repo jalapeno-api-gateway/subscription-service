@@ -3,24 +3,8 @@ package subscribers
 func StartSubscriptionService() {
 	go handleLsNodeSubscribers()
 	go handleLsLinkSubscribers()
-	handleTelemetrySubscriber()
-}
-
-func handleTelemetrySubscriber() {
-	for {
-		subscriptionUpdate := <-dataRateSubscriberUpdates
-		if subscriptionUpdate.Action == Subscribe {
-			dataRateSubscribers = append(dataRateSubscribers, subscriptionUpdate.UpdateChannel)
-		} else if subscriptionUpdate.Action == Unsubscribe {
-			index := -1
-			for i, updateChannel := range dataRateSubscribers { // Find subscriber index in array
-				if subscriptionUpdate.UpdateChannel == updateChannel {
-					index = i
-				}
-			}
-			dataRateSubscribers = append(dataRateSubscribers[:index], dataRateSubscribers[:index+1]...) // Remove subscriber from array
-		}
-	}
+	go handlePhysicalInterfaceSubscribers()
+	handleLoopbackInterfaceSubscribers()
 }
 
 func handleLsNodeSubscribers() {
@@ -55,6 +39,40 @@ func handleLsLinkSubscribers() {
 			// Remove subscriber from array
 			lsLinkSubscribers[index] = lsLinkSubscribers[len(lsLinkSubscribers)-1]
 			lsLinkSubscribers = lsLinkSubscribers[:len(lsLinkSubscribers)-1]
+		}
+	}
+}
+
+func handlePhysicalInterfaceSubscribers() {
+	for {
+		subscriptionUpdate := <-physicalIntefaceSubscriberUpdates
+		if subscriptionUpdate.Action == Subscribe {
+			physicalInterfaceSubscribers = append(physicalInterfaceSubscribers, subscriptionUpdate.UpdateChannel)
+		} else if subscriptionUpdate.Action == Unsubscribe {
+			index := -1
+			for i, updateChannel := range physicalInterfaceSubscribers { // Find subscriber index in array
+				if subscriptionUpdate.UpdateChannel == updateChannel {
+					index = i
+				}
+			}
+			physicalInterfaceSubscribers = append(physicalInterfaceSubscribers[:index], physicalInterfaceSubscribers[:index+1]...) // Remove subscriber from array
+		}
+	}
+}
+
+func handleLoopbackInterfaceSubscribers() {
+	for {
+		subscriptionUpdate := <-loopbackIntefaceSubscriberUpdates
+		if subscriptionUpdate.Action == Subscribe {
+			loopbackInterfaceSubscribers = append(loopbackInterfaceSubscribers, subscriptionUpdate.UpdateChannel)
+		} else if subscriptionUpdate.Action == Unsubscribe {
+			index := -1
+			for i, updateChannel := range loopbackInterfaceSubscribers { // Find subscriber index in array
+				if subscriptionUpdate.UpdateChannel == updateChannel {
+					index = i
+				}
+			}
+			loopbackInterfaceSubscribers = append(loopbackInterfaceSubscribers[:index], loopbackInterfaceSubscribers[:index+1]...) // Remove subscriber from array
 		}
 	}
 }

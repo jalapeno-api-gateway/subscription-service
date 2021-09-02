@@ -16,34 +16,6 @@ func NewServer() *pushServiceServer {
 	return s
 }
 
-func (s *pushServiceServer) SubscribeToDataRates(subscription *DataRateSubscription, responseStream PushService_SubscribeToDataRatesServer) error {
-	log.Printf("SR-App subscribing to DataRates\n")
-
-	events := make(chan subscribers.DataRateEvent)
-	subscribers.SubscribeToDataRateEvents(events)
-	defer func() {
-		subscribers.UnsubscribeFromDataRateEvents(events)
-	}()
-
-	for {
-		event := <-events
-		if len(subscription.Ipv4Addresses) == 0 || helpers.IsInSlice(subscription.Ipv4Addresses, event.Key) {
-			response := convertToGrpcDataRateEvent(event)
-			log.Print("response.DataRate")
-			log.Print(response.DataRate)
-			log.Print("response.Action")
-			log.Print(response.Action)
-			log.Print("response.Key")
-			log.Print(response.Key)
-
-			err := responseStream.Send(&response)
-			if err != nil {
-				return err
-			}
-		}
-	}
-}
-
 func (s *pushServiceServer) SubscribeToLsNodes(subscription *LsNodeSubscription, responseStream PushService_SubscribeToLsNodesServer) error {
 	log.Printf("SR-App subscribing to LsNodes\n")
 
@@ -83,5 +55,61 @@ func (s *pushServiceServer) SubscribeToLsLinks(subscription *LsLinkSubscription,
 				return err
 			}
 		}
+	}
+}
+
+func (s *pushServiceServer) SubscribeToTelemetryData(subscription *TelemetrySubscription, responseStream PushService_SubscribeToTelemetryDataServer) error {
+	log.Printf("SR-App subscribing to TelemetryData\n")
+
+	physicalInterfaceEvents := make(chan subscribers.PhysicalInterfaceEvent)
+	loopbackInterfaceEvents := make(chan subscribers.LoopbackInterfaceEvent)
+	subscribers.SubscribeToPhysicalInterfaceEvents(physicalInterfaceEvents)
+	subscribers.SubscribeToLoopbackInterfaceEvents(loopbackInterfaceEvents)
+	defer func() {
+		subscribers.UnsubscribeFromPhysicalInterfaceEvents(physicalInterfaceEvents)
+		subscribers.UnsubscribeFromLoopbackInterfaceEvents(loopbackInterfaceEvents)
+	}()
+
+	for {
+		select {
+			case event := <-physicalInterfaceEvents:
+				if len(subscription.Ipv4Addresses) == 0 || helpers.IsInSlice(subscription.Ipv4Addresses, event.Ipv4Address) {
+					response := convertPhysicalInterface(event, subscription.PropertyNames)
+					err := responseStream.Send(&response)
+					if err != nil {
+						return err
+					}
+				}
+			case event := <-loopbackInterfaceEvents:
+				if len(subscription.Ipv4Addresses) == 0 || helpers.IsInSlice(subscription.Ipv4Addresses, event.Ipv4Address) {
+					response := convertLoopbackInterface(event, subscription.PropertyNames)
+					err := responseStream.Send(&response)
+					if err != nil {
+						return err
+					}
+				}
+		}
+	}
+}
+
+func (s *pushServiceServer) SubscribeToDataRate(subscription *DataRateSubscription, responseStream PushService_SubscribeToDataRateServer) error {
+	log.Printf("SR-App subscribing to DataRate\n")
+
+	physicalInterfaceEvents := make(chan subscribers.PhysicalInterfaceEvent)
+	subscribers.SubscribeToPhysicalInterfaceEvents(physicalInterfaceEvents)
+	defer func() {
+		subscribers.UnsubscribeFromPhysicalInterfaceEvents(physicalInterfaceEvents)
+	}()
+
+	for {
+		event := <-physicalInterfaceEvents
+		if subscription.Ipv4Address == event.Ipv4Address {
+			response := DataRate{DataRate: event.DataRate}
+			err := responseStream.Send(&response)
+			if err != nil {
+				return err
+			}
+		}
+			
 	}
 }

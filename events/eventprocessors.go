@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/arangodb"
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/influxdb"
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/kafka"
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/subscribers"
 )
@@ -17,23 +16,12 @@ func StartEventProcessing() {
 			handleLsNodeEvent(event)
 		case event := <-kafka.LsLinkEvents:
 			handleLsLinkEvent(event)
-		case event := <-kafka.TelemetryDataRateEvents:
-			handleTelemetryDataRateEvent(event)
-			// more cases for different telemetry attributes
+		case event := <-kafka.PhysicalInterfaceEvents:
+			handlePhysicalInterfaceEvent(event)
+		case event := <-kafka.LoopbackInterfaceEvents:
+			handleLoopbackInterfaceEvent(event)
 		}
 	}
-}
-
-func handleTelemetryDataRateEvent(event kafka.KafkaTelemetryDataRateEventMessage) {
-	//Get Data from kafka message
-	//Handle DataRates
-	dataRate := influxdb.DataRate{Ipv4Address: event.IpAddress, DataRate: event.DataRate}
-	dataRateEvent := subscribers.DataRateEvent{Key: event.IpAddress, DataRate: dataRate}
-	subscribers.NotifyDataRateSubscribers(dataRateEvent)
-
-	// log.Printf("TELEMETRY DATA")
-	// log.Printf(event.IpAddress)
-	// log.Print(event.DataRate)
 }
 
 func handleLsNodeEvent(event kafka.KafkaEventMessage) {
@@ -60,4 +48,23 @@ func handleLsLinkEvent(event kafka.KafkaEventMessage) {
 
 	linkEvent := subscribers.LsLinkEvent{Action: event.Action, Key: event.Key, LsLinkDocument: updatedLink}
 	subscribers.NotifyLsLinkSubscribers(linkEvent)
+}
+
+func handlePhysicalInterfaceEvent(event kafka.PhysicalInterfaceEventMessage) {
+	phyiscalInterfaceEvent := subscribers.PhysicalInterfaceEvent{
+		Ipv4Address:     event.IpAddress,
+		DataRate:        event.DataRate,
+		PacketsSent:     event.PacketsSent,
+		PacketsReceived: event.PacketsReceived,
+	}
+	subscribers.NotifyPhysicalInterfaceSubscribers(phyiscalInterfaceEvent)
+}
+
+func handleLoopbackInterfaceEvent(event kafka.LoopbackInterfaceEventMessage) {
+	loopbackInterfaceEvent := subscribers.LoopbackInterfaceEvent{
+		Ipv4Address:     			event.IpAddress,
+		State:        				event.State,
+		LastStateTransitionTime: 	event.LastStateTransitionTime,
+	}
+	subscribers.NotifyLoopbackInterfaceSubscribers(loopbackInterfaceEvent)
 }
