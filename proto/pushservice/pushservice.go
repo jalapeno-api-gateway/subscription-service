@@ -72,22 +72,22 @@ func (s *pushServiceServer) SubscribeToTelemetryData(subscription *TelemetrySubs
 
 	for {
 		select {
-			case event := <-physicalInterfaceEvents:
-				if len(subscription.Ipv4Addresses) == 0 || helpers.IsInSlice(subscription.Ipv4Addresses, event.Ipv4Address) {
-					response := convertPhysicalInterface(event, subscription.PropertyNames)
-					err := responseStream.Send(&response)
-					if err != nil {
-						return err
-					}
+		case event := <-physicalInterfaceEvents:
+			if len(subscription.Ipv4Addresses) == 0 || helpers.IsInSlice(subscription.Ipv4Addresses, event.Ipv4Address) {
+				response := convertPhysicalInterface(event, subscription.PropertyNames)
+				err := responseStream.Send(&response)
+				if err != nil {
+					return err
 				}
-			case event := <-loopbackInterfaceEvents:
-				if len(subscription.Ipv4Addresses) == 0 || helpers.IsInSlice(subscription.Ipv4Addresses, event.Ipv4Address) {
-					response := convertLoopbackInterface(event, subscription.PropertyNames)
-					err := responseStream.Send(&response)
-					if err != nil {
-						return err
-					}
+			}
+		case event := <-loopbackInterfaceEvents:
+			if len(subscription.Ipv4Addresses) == 0 || helpers.IsInSlice(subscription.Ipv4Addresses, event.Ipv4Address) {
+				response := convertLoopbackInterface(event, subscription.PropertyNames)
+				err := responseStream.Send(&response)
+				if err != nil {
+					return err
 				}
+			}
 		}
 	}
 }
@@ -98,9 +98,11 @@ func (s *pushServiceServer) SubscribeToDataRate(subscription *DataRateSubscripti
 	physicalInterfaceEvents := make(chan subscribers.PhysicalInterfaceEvent)
 	subscribers.SubscribeToPhysicalInterfaceEvents(physicalInterfaceEvents)
 	defer func() {
+		//TODO: defer is only called if client is exited (using eg ctrl + C) but not if context gets cancelled
 		subscribers.UnsubscribeFromPhysicalInterfaceEvents(physicalInterfaceEvents)
 	}()
 
+	//TODO: check if stream was canceled from client side
 	for {
 		event := <-physicalInterfaceEvents
 		if subscription.Ipv4Address == event.Ipv4Address {
@@ -110,6 +112,6 @@ func (s *pushServiceServer) SubscribeToDataRate(subscription *DataRateSubscripti
 				return err
 			}
 		}
-			
+
 	}
 }
