@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Shopify/sarama"
+	"gitlab.ost.ch/ins/jalapeno-api/push-service/model"
 )
 
 const (
@@ -28,26 +29,26 @@ func unmarshalKafkaMessage(msg *sarama.ConsumerMessage) KafkaEventMessage {
 	return event
 }
 
-func createLoopbackInterfaceEvent(telemetryString string) LoopbackInterfaceEventMessage {
-	ipAddress := getIpAddress(telemetryString)
+func createLoopbackInterfaceEvent(telemetryString string) model.LoopbackInterfaceEvent {
+	ipv4Address := getIpAddress(telemetryString)
 	state := getState(telemetryString)
 	lastStateTransitionTime := getLastStateTransitionTime(telemetryString)
 
-	return LoopbackInterfaceEventMessage{
-		IpAddress:       			ipAddress,
+	return model.LoopbackInterfaceEvent {
+		Ipv4Address:       			ipv4Address,
 		State:        				state,
 		LastStateTransitionTime:    int64(lastStateTransitionTime),
 	}
 }
 
-func createPhysicalInterfaceEvent(telemetryString string) PhysicalInterfaceEventMessage {
+func createPhysicalInterfaceEvent(telemetryString string) model.PhysicalInterfaceEvent {
 	dataRate := getDataRate(telemetryString)
-	ipAddress := getIpAddress(telemetryString)
+	ipv4Address := getIpAddress(telemetryString)
 	totalPacketsSent := getPacketsSent(telemetryString)
 	totalPacketsReceived := getPacketsReceived(telemetryString)
 
-	return PhysicalInterfaceEventMessage{
-		IpAddress:       ipAddress,
+	return model.PhysicalInterfaceEvent {
+		Ipv4Address:     ipv4Address,
 		DataRate:        int64(dataRate),
 		PacketsSent:     int64(totalPacketsSent),
 		PacketsReceived: int64(totalPacketsReceived),

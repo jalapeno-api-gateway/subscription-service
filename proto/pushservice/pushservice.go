@@ -1,10 +1,12 @@
 package pushservice
 
 import (
+	"context"
 	"log"
 
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/helpers"
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/subscribers"
+	"gitlab.ost.ch/ins/jalapeno-api/push-service/model"
+	"gitlab.ost.ch/ins/jalapeno-api/push-service/pubsub"
 )
 
 type pushServiceServer struct {
@@ -19,99 +21,109 @@ func NewServer() *pushServiceServer {
 func (s *pushServiceServer) SubscribeToLsNodes(subscription *LsNodeSubscription, responseStream PushService_SubscribeToLsNodesServer) error {
 	log.Printf("SR-App subscribing to LsNodes\n")
 
-	events := make(chan subscribers.LsNodeEvent)
-	subscribers.SubscribeToLsNodeEvents(events)
+	cctx, cancel := context.WithCancel(context.Background())
+	sub := pubsub.LsNodeTopic.Subscribe()
 	defer func() {
-		subscribers.UnSubscribeFromLsNodeEvents(events)
+		sub.Unsubscribe()
 	}()
 
-	for {
-		event := <-events
+	sub.Receive(cctx, func(msg *interface{}) {
+		event := (*msg).(model.TopologyEvent)
 		if len(subscription.Keys) == 0 || helpers.IsInSlice(subscription.Keys, event.Key) {
-			response := convertToGrpcLsNodeEvent(event)
+			response := convertLsNodeEvent(event)
 			err := responseStream.Send(&response)
 			if err != nil {
-				return err
+				cancel()
 			}
 		}
-	}
+	})
+
+	return nil
 }
 
 func (s *pushServiceServer) SubscribeToLsLinks(subscription *LsLinkSubscription, responseStream PushService_SubscribeToLsLinksServer) error {
 	log.Printf("SR-App subscribing to LsLinks\n")
 
-	events := make(chan subscribers.LsLinkEvent)
-	subscribers.SubscribeToLsLinkEvents(events)
+	cctx, cancel := context.WithCancel(context.Background())
+	sub := pubsub.LsLinkTopic.Subscribe()
 	defer func() {
-		subscribers.UnSubscribeFromLsLinkEvents(events)
+		sub.Unsubscribe()
 	}()
 
-	for {
-		event := <-events
+	sub.Receive(cctx, func(msg *interface{}) {
+		event := (*msg).(model.TopologyEvent)
 		if len(subscription.Keys) == 0 || helpers.IsInSlice(subscription.Keys, event.Key) {
-			response := convertToGrpcLsLinkEvent(event)
+			response := convertLsLinkEvent(event)
 			err := responseStream.Send(&response)
 			if err != nil {
-				return err
+				cancel()
 			}
 		}
-	}
+	})
+
+	return nil
 }
 
 func (s *pushServiceServer) SubscribeToTelemetryData(subscription *TelemetrySubscription, responseStream PushService_SubscribeToTelemetryDataServer) error {
 	log.Printf("SR-App subscribing to TelemetryData\n")
 
-	physicalInterfaceEvents := make(chan subscribers.PhysicalInterfaceEvent)
-	loopbackInterfaceEvents := make(chan subscribers.LoopbackInterfaceEvent)
-	subscribers.SubscribeToPhysicalInterfaceEvents(physicalInterfaceEvents)
-	subscribers.SubscribeToLoopbackInterfaceEvents(loopbackInterfaceEvents)
+	cctxA, cancelA := context.WithCancel(context.Background())
+	cctxB, cancelB := context.WithCancel(context.Background())
+	physicalInterfaceSubscription := pubsub.PhysicalInterfaceTopic.Subscribe()
+	loopbackInterfaceSubscription := pubsub.LoopbackInterfaceTopic.Subscribe()
+	
 	defer func() {
-		subscribers.UnsubscribeFromPhysicalInterfaceEvents(physicalInterfaceEvents)
-		subscribers.UnsubscribeFromLoopbackInterfaceEvents(loopbackInterfaceEvents)
+		physicalInterfaceSubscription.Unsubscribe()
+		loopbackInterfaceSubscription.Unsubscribe()
 	}()
 
-	for {
-		select {
-		case event := <-physicalInterfaceEvents:
+	go func() {
+		physicalInterfaceSubscription.Receive(cctxA, func(msg *interface{}) {
+			event := (*msg).(model.PhysicalInterfaceEvent)
 			if len(subscription.Ipv4Addresses) == 0 || helpers.IsInSlice(subscription.Ipv4Addresses, event.Ipv4Address) {
-				response := convertPhysicalInterface(event, subscription.PropertyNames)
+				response := convertTelemetryEvent(event, subscription.PropertyNames, model.PhysicalInterfaceTelemetryEvent)
 				err := responseStream.Send(&response)
 				if err != nil {
-					return err
+					cancelA()
 				}
 			}
-		case event := <-loopbackInterfaceEvents:
-			if len(subscription.Ipv4Addresses) == 0 || helpers.IsInSlice(subscription.Ipv4Addresses, event.Ipv4Address) {
-				response := convertLoopbackInterface(event, subscription.PropertyNames)
-				err := responseStream.Send(&response)
-				if err != nil {
-					return err
-				}
+		})
+	}()
+
+	loopbackInterfaceSubscription.Receive(cctxB, func(msg *interface{}) {
+		event := (*msg).(model.LoopbackInterfaceEvent)
+		if len(subscription.Ipv4Addresses) == 0 || helpers.IsInSlice(subscription.Ipv4Addresses, event.Ipv4Address) {
+			response := convertTelemetryEvent(event, subscription.PropertyNames, model.LoopbackInterfaceTelemetryEvent)
+			err := responseStream.Send(&response)
+			if err != nil {
+				cancelB()
 			}
 		}
-	}
+	})
+	
+	return nil
 }
 
 func (s *pushServiceServer) SubscribeToDataRate(subscription *DataRateSubscription, responseStream PushService_SubscribeToDataRateServer) error {
 	log.Printf("SR-App subscribing to DataRate\n")
 
-	physicalInterfaceEvents := make(chan subscribers.PhysicalInterfaceEvent)
-	subscribers.SubscribeToPhysicalInterfaceEvents(physicalInterfaceEvents)
+	cctx, cancel := context.WithCancel(context.Background())
+	physicalInterfaceSubscription := pubsub.PhysicalInterfaceTopic.Subscribe()
+
 	defer func() {
-		//TODO: defer is only called if client is exited (using eg ctrl + C) but not if context gets cancelled
-		subscribers.UnsubscribeFromPhysicalInterfaceEvents(physicalInterfaceEvents)
+		physicalInterfaceSubscription.Unsubscribe()
 	}()
 
-	//TODO: check if stream was canceled from client side
-	for {
-		event := <-physicalInterfaceEvents
+	physicalInterfaceSubscription.Receive(cctx, func(msg *interface{}) {
+		event := (*msg).(model.PhysicalInterfaceEvent)
 		if subscription.Ipv4Address == event.Ipv4Address {
 			response := DataRate{DataRate: event.DataRate}
 			err := responseStream.Send(&response)
 			if err != nil {
-				return err
+				cancel()
 			}
 		}
+	})
 
-	}
+	return nil
 }

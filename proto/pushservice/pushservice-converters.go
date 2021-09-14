@@ -2,142 +2,102 @@ package pushservice
 
 import (
 	"encoding/json"
-	"errors"
+	"reflect"
 
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/arangodb"
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/subscribers"
+	"gitlab.ost.ch/ins/jalapeno-api/push-service/model"
 )
 
 const (
-	dataRate = "DataRate"
-	packetsSent = "PacketsSent"
-	packetsReceived = "PacketsReceived"
-	state = "State"
-	lastStateTransitionTime = "LastStateTransitionTime"
+	DataRateProperty = "DataRate"
+	PacketsSentProperty = "PacketsSent"
+	PacketsReceivedProperty = "PacketsReceived"
+	StateProperty = "State"
+	LastStateTransitionTimeProperty = "LastStateTransitionTime"
 )
 
-func convertToGrpcLsNodeEvent(event subscribers.LsNodeEvent) LsNodeEvent {
-	lsNode := convertToGrpcLsNode(event.LsNodeDocument)
+var allPhysicalInterfaceProperties = []string{
+	DataRateProperty,
+	PacketsSentProperty,
+	PacketsReceivedProperty,
+}
+
+var allLoopbackInterfaceProperties = []string{
+	StateProperty,
+	LastStateTransitionTimeProperty,
+}
+
+func convertLsNodeEvent(event model.TopologyEvent) LsNodeEvent {
+	document := event.Document.(arangodb.LsNodeDocument)
+
+	lsNode := &LsNode{
+		Key:      document.Key,
+		Name:     document.Name,
+		Asn:      document.Asn,
+		RouterIp: document.Router_ip,
+	}
+
 	return LsNodeEvent{
 		Action: event.Action,
 		Key:    event.Key,
-		LsNode: &lsNode,
+		LsNode: lsNode,
 	}
 }
 
-func convertToGrpcLsLinkEvent(event subscribers.LsLinkEvent) LsLinkEvent {
-	lsLink := convertToGrpcLsLink(event.LsLinkDocument)
+func convertLsLinkEvent(event model.TopologyEvent) LsLinkEvent {
+	document := event.Document.(arangodb.LsLinkDocument)
+
+	lsLink := &LsLink{
+		Key:          document.Key,
+		RouterIp:     document.Router_ip,
+		PeerIp:       document.Peer_ip,
+		LocalLinkIp:  document.LocalLink_ip,
+		RemoteLinkIp: document.RemoteLink_ip,
+		IgpMetric:    int32(document.Igp_metric),
+	}
+
 	return LsLinkEvent{
 		Action: event.Action,
 		Key:    event.Key,
-		LsLink: &lsLink,
+		LsLink: lsLink,
 	}
 }
 
-func convertToGrpcLsNode(nodeDocument arangodb.LsNodeDocument) LsNode {
-	return LsNode{
-		Key:      nodeDocument.Key,
-		Name:     nodeDocument.Name,
-		Asn:      nodeDocument.Asn,
-		RouterIp: nodeDocument.Router_ip,
-	}
-}
-
-func convertToGrpcLsLink(linkDocument arangodb.LsLinkDocument) LsLink {
-	return LsLink{
-		Key:          linkDocument.Key,
-		RouterIp:     linkDocument.Router_ip,
-		PeerIp:       linkDocument.Peer_ip,
-		LocalLinkIp:  linkDocument.LocalLink_ip,
-		RemoteLinkIp: linkDocument.RemoteLink_ip,
-		IgpMetric:    int32(linkDocument.Igp_metric),
-	}
-}
-
-func convertLoopbackInterface(event subscribers.LoopbackInterfaceEvent, propertyNames []string) TelemetryEvent {
+func convertTelemetryEvent(event interface{}, propertyNames []string, eventType model.EventType) TelemetryEvent {
 	data := []*TelemetryData{}
 
-	if len(propertyNames) == 0 {
-		propertyNames = []string{
-			state,
-			lastStateTransitionTime,
+	if len(propertyNames) == 0 { // If no propertyNames were provided, all Properties are returned to the SR-App
+		switch eventType {
+			case model.PhysicalInterfaceTelemetryEvent: propertyNames = allPhysicalInterfaceProperties
+			case model.LoopbackInterfaceTelemetryEvent: propertyNames = allLoopbackInterfaceProperties
 		}
 	}
 
 	for _, propertyName := range propertyNames {
-		telemetryData, err := getLoopbackInterfaceData(event, propertyName)
+		telemetryData, err := getTelemetryData(event, propertyName, eventType)
 		if err == nil {
-			data = append(data, &telemetryData)
-		}
+			data = append(data, telemetryData)
+		} // Ignore/Skip in case of error (SR-App provided invalid propertyName)
+	}
+
+	var ipv4Address string
+	switch eventType {
+		case model.PhysicalInterfaceTelemetryEvent: ipv4Address = event.(model.PhysicalInterfaceEvent).Ipv4Address
+		case model.LoopbackInterfaceTelemetryEvent: ipv4Address = event.(model.LoopbackInterfaceEvent).Ipv4Address
 	}
 
 	return TelemetryEvent{
-		Ipv4Address: event.Ipv4Address,
+		Ipv4Address: ipv4Address,
 		Data: data,
 	}
 }
 
-func convertPhysicalInterface(event subscribers.PhysicalInterfaceEvent, propertyNames []string) TelemetryEvent {
-	data := []*TelemetryData{}
-
-	if len(propertyNames) == 0 {
-		propertyNames = []string{
-			dataRate,
-			packetsSent,
-			packetsReceived,
-		}
-	}
-
-	for _, propertyName := range propertyNames {
-		telemetryData, err := getPhysicalInterfaceData(event, propertyName)
-		if err == nil {
-			data = append(data, &telemetryData)
-		}
-	}
-
-	return TelemetryEvent{
-		Ipv4Address: event.Ipv4Address,
-		Data: data,
-	}
-}
-
-func getLoopbackInterfaceData(event subscribers.LoopbackInterfaceEvent, propertyName string) (TelemetryData, error) {
-	value := []byte{}
-	var err error
-
-	switch propertyName {
-		case state:
-			value, err = json.Marshal(event.State)
-		case lastStateTransitionTime:
-			value, err = json.Marshal(event.LastStateTransitionTime)
-		default:
-			err = errors.New("Invalid property name!")
-	}
-
+func getTelemetryData(event interface{}, field string, eventType model.EventType) (*TelemetryData, error) {
+	r := reflect.ValueOf(event)
+	value := reflect.Indirect(r).FieldByName(field)
+	bytes, err := json.Marshal(value.Interface())
 	if err != nil {
-		return TelemetryData{}, err
+		return &TelemetryData{}, err
 	}
-	return TelemetryData{PropertyName: propertyName, Value: value}, nil
-}
-
-
-func getPhysicalInterfaceData(event subscribers.PhysicalInterfaceEvent, propertyName string) (TelemetryData, error) {
-	value := []byte{}
-	var err error
-
-	switch propertyName {
-		case dataRate:
-			value, err = json.Marshal(event.DataRate)
-		case packetsSent:
-			value, err = json.Marshal(event.PacketsSent)
-		case packetsReceived:
-			value, err = json.Marshal(event.PacketsReceived)
-		default:
-			err = errors.New("Invalid property name!")
-	}
-
-	if err != nil {
-		return TelemetryData{}, err
-	}
-	return TelemetryData{PropertyName: propertyName, Value: value}, nil
+	return &TelemetryData{PropertyName: field, Value: bytes}, nil
 }

@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/Shopify/sarama"
+	"gitlab.ost.ch/ins/jalapeno-api/push-service/model"
 )
 
 func StartEventConsumption() {
@@ -21,21 +22,9 @@ func consumeMessages(consumer sarama.Consumer, lsNodeEventsConsumer sarama.Parti
 
 	for {
 		select {
-		case msg := <-lsNodeEventsConsumer.Messages():
-			LsNodeEvents <- unmarshalKafkaMessage(msg)
-		case msg := <-lsLinkEventsConsumer.Messages():
-			LsLinkEvents <- unmarshalKafkaMessage(msg)
-		case msg := <-telemetryConsumer.Messages():
-			telemetryString := string(msg.Value)
-			if containsIpAddress(telemetryString) {
-				if isLoopbackEvent(telemetryString) {
-					loopbackInterfaceEvent := createLoopbackInterfaceEvent(telemetryString)
-					LoopbackInterfaceEvents <- loopbackInterfaceEvent
-				} else {
-					physicalInterfaceEvent := createPhysicalInterfaceEvent(telemetryString)
-					PhysicalInterfaceEvents <- physicalInterfaceEvent
-				}
-			}
+		case msg := <-lsNodeEventsConsumer.Messages(): handleTopologyEvent(unmarshalKafkaMessage(msg), model.LsNodeEvent)
+		case msg := <-lsLinkEventsConsumer.Messages(): handleTopologyEvent(unmarshalKafkaMessage(msg), model.LsLinkEvent)
+		case msg := <-telemetryConsumer.Messages(): handleTelemetryEvent(string(msg.Value))
 		}
 	}
 }
