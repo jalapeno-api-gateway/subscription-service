@@ -7,16 +7,17 @@ import (
 	"strings"
 
 	"github.com/Shopify/sarama"
+	"gitlab.ost.ch/ins/jalapeno-api/push-service/model"
 )
 
 const (
-	interfaceNameIdentifier = "interface_name"
-	ipAddressIdentifier = "ip_information/ip_address"
-	dataRateIdentifier = "data_rates/output_data_rate"
-	packetsSentIdentifier = "interface_statistics/full_interface_stats/packets_sent"
-	packetsReceivedIdentifier = "interface_statistics/full_interface_stats/packets_received"
-	stateIdentifier = "state"
-	lastStateTransitionTimeIdentifier = "last_state_transition_time"
+	InterfaceNameIdentifier = "interface_name"
+	IpAddressIdentifier = "ip_information/ip_address"
+	DataRateIdentifier = "data_rates/output_data_rate"
+	PacketsSentIdentifier = "interface_statistics/full_interface_stats/packets_sent"
+	PacketsReceivedIdentifier = "interface_statistics/full_interface_stats/packets_received"
+	StateIdentifier = "state"
+	LastStateTransitionTimeIdentifier = "last_state_transition_time"
 )
 
 func unmarshalKafkaMessage(msg *sarama.ConsumerMessage) KafkaEventMessage {
@@ -28,26 +29,26 @@ func unmarshalKafkaMessage(msg *sarama.ConsumerMessage) KafkaEventMessage {
 	return event
 }
 
-func createLoopbackInterfaceEvent(telemetryString string) LoopbackInterfaceEventMessage {
-	ipAddress := getIpAddress(telemetryString)
+func createLoopbackInterfaceEvent(telemetryString string) model.LoopbackInterfaceEvent {
+	ipv4Address := getIpAddress(telemetryString)
 	state := getState(telemetryString)
 	lastStateTransitionTime := getLastStateTransitionTime(telemetryString)
 
-	return LoopbackInterfaceEventMessage{
-		IpAddress:       			ipAddress,
+	return model.LoopbackInterfaceEvent {
+		Ipv4Address:       			ipv4Address,
 		State:        				state,
 		LastStateTransitionTime:    int64(lastStateTransitionTime),
 	}
 }
 
-func createPhysicalInterfaceEvent(telemetryString string) PhysicalInterfaceEventMessage {
+func createPhysicalInterfaceEvent(telemetryString string) model.PhysicalInterfaceEvent {
 	dataRate := getDataRate(telemetryString)
-	ipAddress := getIpAddress(telemetryString)
+	ipv4Address := getIpAddress(telemetryString)
 	totalPacketsSent := getPacketsSent(telemetryString)
 	totalPacketsReceived := getPacketsReceived(telemetryString)
 
-	return PhysicalInterfaceEventMessage{
-		IpAddress:       ipAddress,
+	return model.PhysicalInterfaceEvent {
+		Ipv4Address:     ipv4Address,
 		DataRate:        int64(dataRate),
 		PacketsSent:     int64(totalPacketsSent),
 		PacketsReceived: int64(totalPacketsReceived),
@@ -60,39 +61,39 @@ func isLoopbackEvent(telemetryString string) bool {
 }
 
 func containsIpAddress(telemetryString string) bool {
-	return strings.Index(telemetryString, ipAddressIdentifier) != -1
+	return strings.Index(telemetryString, IpAddressIdentifier) != -1
 }
 
 func getInterfaceName(telemetryString string) string {
-	return extractStringValue(telemetryString, interfaceNameIdentifier)
+	return extractStringValue(telemetryString, InterfaceNameIdentifier)
 }
 
 func getState(telemetryString string) string {
-	untrimmedValue := extractStringValue(telemetryString, stateIdentifier)
+	untrimmedValue := extractStringValue(telemetryString, StateIdentifier)
 	trimmedValue := strings.Trim(untrimmedValue, "\"") //every ip address contains a leading and tailing apostrophe
 	return trimmedValue
 }
 
 func getIpAddress(telemetryString string) string {
-	untrimmedValue := extractStringValue(telemetryString, ipAddressIdentifier)
+	untrimmedValue := extractStringValue(telemetryString, IpAddressIdentifier)
 	trimmedValue := strings.Trim(untrimmedValue, "\"") //every ip address contains a leading and tailing apostrophe
 	return trimmedValue
 }
 
 func getLastStateTransitionTime(telemetryString string) int {
-	return extractIntValue(telemetryString, lastStateTransitionTimeIdentifier)
+	return extractIntValue(telemetryString, LastStateTransitionTimeIdentifier)
 }
 
 func getDataRate(telemetryString string) int {
-	return extractIntValue(telemetryString, dataRateIdentifier)
+	return extractIntValue(telemetryString, DataRateIdentifier)
 }
 
 func getPacketsSent(telemetryString string) int {
-	return extractIntValue(telemetryString, packetsSentIdentifier)
+	return extractIntValue(telemetryString, PacketsSentIdentifier)
 }
 
 func getPacketsReceived(telemetryString string) int {
-	return extractIntValue(telemetryString, packetsReceivedIdentifier)
+	return extractIntValue(telemetryString, PacketsReceivedIdentifier)
 }
 
 func extractIntValue(telemetryString string, propertyName string) int {
