@@ -14,7 +14,6 @@ import (
 
 func main() {
 	log.Print("Starting Push Service ...")
-	// ss.StartSubscriptionService()
 	pubsub.InitializeTopics()
 	kafka.StartEventConsumption()
 
