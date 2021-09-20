@@ -3,6 +3,7 @@ package pushservice
 import (
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/arangodb"
 	"gitlab.ost.ch/ins/jalapeno-api/push-service/model"
+	"google.golang.org/protobuf/proto"
 )
 
 const (
@@ -29,9 +30,9 @@ func convertLsNodeEvent(event model.TopologyEvent) *LsNodeEvent {
 
 	lsNode := &LsNode{
 		Key:      document.Key,
-		Name:     document.Name,
-		Asn:      document.Asn,
-		RouterIp: document.Router_ip,
+		Name:     proto.String(document.Name),
+		Asn:      proto.Int32(document.Asn),
+		RouterIp: proto.String(document.Router_ip),
 	}
 
 	return &LsNodeEvent{
@@ -46,11 +47,11 @@ func convertLsLinkEvent(event model.TopologyEvent) *LsLinkEvent {
 
 	lsLink := &LsLink{
 		Key:          document.Key,
-		RouterIp:     document.Router_ip,
-		PeerIp:       document.Peer_ip,
-		LocalLinkIp:  document.LocalLink_ip,
-		RemoteLinkIp: document.RemoteLink_ip,
-		IgpMetric:    int32(document.Igp_metric),
+		RouterIp:     proto.String(document.Router_ip),
+		PeerIp:       proto.String(document.Peer_ip),
+		LocalLinkIp:  proto.String(document.LocalLink_ip),
+		RemoteLinkIp: proto.String(document.RemoteLink_ip),
+		IgpMetric:    proto.Int32(int32(document.Igp_metric)),
 	}
 
 	return &LsLinkEvent{
@@ -71,9 +72,9 @@ func convertPhysicalInterfaceEvent(event model.PhysicalInterfaceEvent, propertyN
 
 	for _, propertyName := range propertyNames {
 		switch propertyName {
-			case DataRateProperty: telemetryEvent.DataRate = event.DataRate
-			case PacketsSentProperty: telemetryEvent.PacketsSent = event.PacketsSent
-			case PacketsReceivedProperty: telemetryEvent.PacketsReceived = event.PacketsReceived
+			case DataRateProperty: telemetryEvent.DataRate = proto.Int64(event.DataRate)
+			case PacketsSentProperty: telemetryEvent.PacketsSent = proto.Int64(event.PacketsSent)
+			case PacketsReceivedProperty: telemetryEvent.PacketsReceived = proto.Int64(event.PacketsReceived)
 		}
 	}
 	
@@ -91,8 +92,8 @@ func convertLoopbackInterfaceEvent(event model.LoopbackInterfaceEvent, propertyN
 
 	for _, propertyName := range propertyNames {
 		switch propertyName {
-			case StateProperty: telemetryEvent.State = event.State
-			case LastStateTransitionTimeProperty: telemetryEvent.LastStateTransitionTime = event.LastStateTransitionTime
+			case StateProperty: telemetryEvent.State = proto.String(event.State)
+			case LastStateTransitionTimeProperty: telemetryEvent.LastStateTransitionTime = proto.Int64(event.LastStateTransitionTime)
 		}
 	}
 	
