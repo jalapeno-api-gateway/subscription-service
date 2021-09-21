@@ -10,18 +10,23 @@ import (
 
 func handleTopologyEvent(msg KafkaEventMessage, eventType model.EventType) {
 	ctx := context.Background()
-	var document interface{}
-	if msg.Action != "del" {
-		document = fetchDocument(ctx, msg.Key, eventType)
-	}
+	document := fetchDocument(ctx, msg, eventType)
 	event := model.TopologyEvent{Action: msg.Action, Key: msg.Key, Document: document}
 	publishTopologyEvent(event, eventType)
 }
 
-func fetchDocument(ctx context.Context, key string, eventType model.EventType) interface{} {
+func fetchDocument(ctx context.Context, msg KafkaEventMessage, eventType model.EventType) interface{} {
+	if msg.Action == "del" {
+		switch eventType {
+			case model.LsNodeEvent: return arangodb.LsNodeDocument{}
+			case model.LsLinkEvent: return arangodb.LsLinkDocument{}
+			default: return nil
+		}
+	}
+
 	switch eventType {
-		case model.LsNodeEvent: return arangodb.FetchLsNode(ctx, key)
-		case model.LsLinkEvent: return arangodb.FetchLsLink(ctx, key)
+		case model.LsNodeEvent: return arangodb.FetchLsNode(ctx, msg.Key)
+		case model.LsLinkEvent: return arangodb.FetchLsLink(ctx, msg.Key)
 		default: return nil
 	}
 }
