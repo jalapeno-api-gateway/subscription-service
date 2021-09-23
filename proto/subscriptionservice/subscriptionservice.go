@@ -1,24 +1,24 @@
-package pushservice
+package subscriptionservice
 
 import (
 	"context"
 	"log"
 
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/helpers"
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/model"
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/pubsub"
+	"github.com/Jalapeno-API-Gateway/subscription-service/helpers"
+	"github.com/Jalapeno-API-Gateway/subscription-service/model"
+	"github.com/Jalapeno-API-Gateway/subscription-service/pubsub"
 )
 
-type pushServiceServer struct {
-	UnimplementedPushServiceServer
+type subscriptionServiceServer struct {
+	UnimplementedSubscriptionServiceServer
 }
 
-func NewServer() *pushServiceServer {
-	s := &pushServiceServer{}
+func NewServer() *subscriptionServiceServer {
+	s := &subscriptionServiceServer{}
 	return s
 }
 
-func (s *pushServiceServer) SubscribeToLsNodes(subscription *TopologySubscription, responseStream PushService_SubscribeToLsNodesServer) error {
+func (s *subscriptionServiceServer) SubscribeToLsNodes(subscription *TopologySubscription, responseStream SubscriptionService_SubscribeToLsNodesServer) error {
 	log.Printf("SR-App subscribing to LsNodes\n")
 
 	cctx, cancel := context.WithCancel(context.Background())
@@ -41,7 +41,7 @@ func (s *pushServiceServer) SubscribeToLsNodes(subscription *TopologySubscriptio
 	return nil
 }
 
-func (s *pushServiceServer) SubscribeToLsLinks(subscription *TopologySubscription, responseStream PushService_SubscribeToLsLinksServer) error {
+func (s *subscriptionServiceServer) SubscribeToLsLinks(subscription *TopologySubscription, responseStream SubscriptionService_SubscribeToLsLinksServer) error {
 	log.Printf("SR-App subscribing to LsLinks\n")
 
 	cctx, cancel := context.WithCancel(context.Background())
@@ -64,7 +64,7 @@ func (s *pushServiceServer) SubscribeToLsLinks(subscription *TopologySubscriptio
 	return nil
 }
 
-func (s *pushServiceServer) SubscribeToTelemetryData(subscription *TelemetrySubscription, responseStream PushService_SubscribeToTelemetryDataServer) error {
+func (s *subscriptionServiceServer) SubscribeToTelemetryData(subscription *TelemetrySubscription, responseStream SubscriptionService_SubscribeToTelemetryDataServer) error {
 	log.Printf("SR-App subscribing to TelemetryData\n")
 
 	cctxA, cancelA := context.WithCancel(context.Background())

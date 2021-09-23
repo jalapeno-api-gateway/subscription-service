@@ -5,15 +5,15 @@ import (
 	"net"
 	"os"
 
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/helpers"
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/kafka"
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/proto/pushservice"
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/pubsub"
+	"github.com/Jalapeno-API-Gateway/subscription-service/helpers"
+	"github.com/Jalapeno-API-Gateway/subscription-service/kafka"
+	"github.com/Jalapeno-API-Gateway/subscription-service/proto/subscriptionservice"
+	"github.com/Jalapeno-API-Gateway/subscription-service/pubsub"
 	"google.golang.org/grpc"
 )
 
 func main() {
-	log.Print("Starting Push Service ...")
+	log.Print("Starting Subscription Service ...")
 	pubsub.InitializeTopics()
 	kafka.StartEventConsumption()
 
@@ -31,7 +31,7 @@ func main() {
 		grpcServer.Stop()
 	}()
 
-	pushservice.RegisterPushServiceServer(grpcServer, pushservice.NewServer())
+	subscriptionservice.RegisterSubscriptionServiceServer(grpcServer, subscriptionservice.NewServer())
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve gRPC server: %v", err)
 	}

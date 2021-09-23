@@ -1,8 +1,8 @@
-package pushservice
+package subscriptionservice
 
 import (
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/arangodb"
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/model"
+	"github.com/Jalapeno-API-Gateway/subscription-service/arangodb"
+	"github.com/Jalapeno-API-Gateway/subscription-service/model"
 	"google.golang.org/protobuf/proto"
 )
 

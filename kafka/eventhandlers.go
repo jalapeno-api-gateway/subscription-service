@@ -3,9 +3,9 @@ package kafka
 import (
 	"context"
 
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/pubsub"
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/arangodb"
-	"gitlab.ost.ch/ins/jalapeno-api/push-service/model"
+	"github.com/Jalapeno-API-Gateway/subscription-service/pubsub"
+	"github.com/Jalapeno-API-Gateway/subscription-service/arangodb"
+	"github.com/Jalapeno-API-Gateway/subscription-service/model"
 )
 
 func handleTopologyEvent(msg KafkaEventMessage, eventType model.EventType) {

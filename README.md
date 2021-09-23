@@ -2,9 +2,9 @@
 The push-service is part of the Jalapeño API Gateway. It allows SR-Apps to subscribe to collections and counters.
 
 ## gRPC
-- When the file `proto/pushservice/pushservice.proto` is updated, this command needs to be run to recompile the code:
+- When the file `proto/subscriptionservice/subscriptionservice.proto` is updated, this command needs to be run to recompile the code:
 ```bash
-$ protoc --proto_path=./proto/pushservice --go_out=./proto/pushservice --go_opt=paths=source_relative --go-grpc_out=./proto/pushservice --go-grpc_opt=paths=source_relative ./proto/pushservice/pushservice.proto
+$ protoc --proto_path=./proto/subscriptionservice --go_out=./proto/subscriptionservice --go_opt=paths=source_relative --go-grpc_out=./proto/subscriptionservice --go-grpc_opt=paths=source_relative ./proto/subscriptionservice/subscriptionservice.proto
 ```
 ## Setting Up Development Environment
 Make sure you have setup the [global development environment](https://gitlab.ost.ch/ins/jalapeno-api/request-service/-/wikis/Development-Environment) first.
@@ -19,7 +19,7 @@ $ okteto init
 ```
 - Replace content of okteto.yml with the following:
 ```yml
-name: push-service
+name: subscription-service
 autocreate: true
 image: okteto/golang:1
 command: bash
