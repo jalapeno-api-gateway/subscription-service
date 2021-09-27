@@ -4,7 +4,8 @@ import (
 	"log"
 	"net"
 	"os"
-
+	
+	"github.com/jalapeno-api-gateway/arangodb-adapter/arango"
 	"github.com/Jalapeno-API-Gateway/subscription-service/helpers"
 	"github.com/Jalapeno-API-Gateway/subscription-service/kafka"
 	"github.com/Jalapeno-API-Gateway/subscription-service/proto/subscriptionservice"
@@ -14,6 +15,7 @@ import (
 
 func main() {
 	log.Print("Starting Subscription Service ...")
+	arango.InitializeArangoDbAdapter(getDefaultArangoDbConfig())
 	pubsub.InitializeTopics()
 	kafka.StartEventConsumption()
 
@@ -34,5 +36,14 @@ func main() {
 	subscriptionservice.RegisterSubscriptionServiceServer(grpcServer, subscriptionservice.NewServer())
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve gRPC server: %v", err)
+	}
+}
+
+func getDefaultArangoDbConfig() arango.ArangoDbConfig {
+	return arango.ArangoDbConfig{
+		Server: os.Getenv("ARANGO_DB"),
+		User: os.Getenv("ARANGO_DB_USER"),
+		Password: os.Getenv("ARANGO_DB_PASSWORD"),
+		DbName: os.Getenv("ARANGO_DB_NAME"),
 	}
 }

@@ -1,7 +1,7 @@
 package subscriptionservice
 
 import (
-	"github.com/Jalapeno-API-Gateway/subscription-service/arangodb"
+	"github.com/jalapeno-api-gateway/arangodb-adapter/arango"
 	"github.com/Jalapeno-API-Gateway/subscription-service/model"
 	"google.golang.org/protobuf/proto"
 )
@@ -26,7 +26,7 @@ var allLoopbackInterfaceProperties = []string{
 }
 
 func convertLsNodeEvent(event model.TopologyEvent) *LsNodeEvent {
-	document := event.Document.(arangodb.LsNodeDocument)
+	document := event.Document.(arango.LsNodeDocument)
 
 	lsNode := &LsNode{
 		Key:      document.Key,
@@ -43,7 +43,7 @@ func convertLsNodeEvent(event model.TopologyEvent) *LsNodeEvent {
 }
 
 func convertLsLinkEvent(event model.TopologyEvent) *LsLinkEvent {
-	document := event.Document.(arangodb.LsLinkDocument)
+	document := event.Document.(arango.LsLinkDocument)
 
 	lsLink := &LsLink{
 		Key:          document.Key,

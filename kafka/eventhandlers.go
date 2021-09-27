@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/Jalapeno-API-Gateway/subscription-service/pubsub"
-	"github.com/Jalapeno-API-Gateway/subscription-service/arangodb"
+	"github.com/jalapeno-api-gateway/arangodb-adapter/arango"
 	"github.com/Jalapeno-API-Gateway/subscription-service/model"
 )
 
@@ -18,15 +18,15 @@ func handleTopologyEvent(msg KafkaEventMessage, eventType model.EventType) {
 func fetchDocument(ctx context.Context, msg KafkaEventMessage, eventType model.EventType) interface{} {
 	if msg.Action == "del" {
 		switch eventType {
-			case model.LsNodeEvent: return arangodb.LsNodeDocument{}
-			case model.LsLinkEvent: return arangodb.LsLinkDocument{}
+			case model.LsNodeEvent: return arango.LsNodeDocument{}
+			case model.LsLinkEvent: return arango.LsLinkDocument{}
 			default: return nil
 		}
 	}
 
 	switch eventType {
-		case model.LsNodeEvent: return arangodb.FetchLsNode(ctx, msg.Key)
-		case model.LsLinkEvent: return arangodb.FetchLsLink(ctx, msg.Key)
+		case model.LsNodeEvent: return arango.FetchLsNode(ctx, msg.Key)
+		case model.LsLinkEvent: return arango.FetchLsLink(ctx, msg.Key)
 		default: return nil
 	}
 }
