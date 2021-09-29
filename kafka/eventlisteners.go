@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/Shopify/sarama"
-	"github.com/Jalapeno-API-Gateway/subscription-service/model"
+	"github.com/jalapeno-api-gateway/model/class"
 )
 
 func StartEventConsumption() {
@@ -22,8 +22,8 @@ func consumeMessages(consumer sarama.Consumer, lsNodeEventsConsumer sarama.Parti
 
 	for {
 		select {
-		case msg := <-lsNodeEventsConsumer.Messages(): handleTopologyEvent(unmarshalKafkaMessage(msg), model.LsNodeEvent)
-		case msg := <-lsLinkEventsConsumer.Messages(): handleTopologyEvent(unmarshalKafkaMessage(msg), model.LsLinkEvent)
+		case msg := <-lsNodeEventsConsumer.Messages(): handleTopologyEvent(unmarshalKafkaMessage(msg), class.LSNode)
+		case msg := <-lsLinkEventsConsumer.Messages(): handleTopologyEvent(unmarshalKafkaMessage(msg), class.LSLink)
 		case msg := <-telemetryConsumer.Messages(): handleTelemetryEvent(string(msg.Value))
 		}
 	}

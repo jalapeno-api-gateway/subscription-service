@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/Shopify/sarama"
-	"github.com/Jalapeno-API-Gateway/subscription-service/model"
+	"github.com/jalapeno-api-gateway/subscription-service/model"
 )
 
 const (

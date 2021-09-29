@@ -1,14 +1,5 @@
 package model
 
-type EventType string
-
-const (
-	LsNodeEvent EventType = "LsNodeEvent"
-	LsLinkEvent EventType = "LsLinkEvent"
-	PhysicalInterfaceTelemetryEvent EventType = "PhysicalInterfaceTelemetryEvent"
-	LoopbackInterfaceTelemetryEvent EventType = "LoopbackInterfaceTelemetryEvent"
-)
-
 type TopologyEvent struct {
 	Action   string
 	Key      string

@@ -2,7 +2,7 @@ package subscriptionservice
 
 import (
 	"github.com/jalapeno-api-gateway/arangodb-adapter/arango"
-	"github.com/Jalapeno-API-Gateway/subscription-service/model"
+	"github.com/jalapeno-api-gateway/subscription-service/model"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -26,13 +26,13 @@ var allLoopbackInterfaceProperties = []string{
 }
 
 func convertLsNodeEvent(event model.TopologyEvent) *LsNodeEvent {
-	document := event.Document.(arango.LsNodeDocument)
+	document := event.Document.(arango.LSNode)
 
 	lsNode := &LsNode{
 		Key:      document.Key,
 		Name:     proto.String(document.Name),
-		Asn:      proto.Int32(document.Asn),
-		RouterIp: proto.String(document.Router_ip),
+		Asn:      proto.Int32(int32(document.ASN)),
+		RouterIp: proto.String(document.RouterIP),
 	}
 
 	return &LsNodeEvent{
@@ -43,15 +43,15 @@ func convertLsNodeEvent(event model.TopologyEvent) *LsNodeEvent {
 }
 
 func convertLsLinkEvent(event model.TopologyEvent) *LsLinkEvent {
-	document := event.Document.(arango.LsLinkDocument)
+	document := event.Document.(arango.LSLink)
 
 	lsLink := &LsLink{
 		Key:          document.Key,
-		RouterIp:     proto.String(document.Router_ip),
-		PeerIp:       proto.String(document.Peer_ip),
-		LocalLinkIp:  proto.String(document.LocalLink_ip),
-		RemoteLinkIp: proto.String(document.RemoteLink_ip),
-		IgpMetric:    proto.Int32(int32(document.Igp_metric)),
+		RouterIp:     proto.String(document.RouterIP),
+		PeerIp:       proto.String(document.PeerIP),
+		LocalLinkIp:  proto.String(document.LocalLinkIP),
+		RemoteLinkIp: proto.String(document.RemoteLinkIP),
+		IgpMetric:    proto.Int32(int32(document.IGPMetric)),
 	}
 
 	return &LsLinkEvent{

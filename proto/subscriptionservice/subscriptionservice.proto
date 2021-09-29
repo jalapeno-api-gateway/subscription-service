@@ -1,7 +1,7 @@
 syntax = "proto3";
 package subscriptionservice;
 
-option go_package = "github.com/Jalapeno-API-Gateway/subscription-service/proto/subscriptionservice";
+option go_package = "github.com/jalapeno-api-gateway/subscription-service/proto/subscriptionservice";
 
 service SubscriptionService {
     rpc SubscribeToLsNodes(TopologySubscription) returns (stream LsNodeEvent) {}

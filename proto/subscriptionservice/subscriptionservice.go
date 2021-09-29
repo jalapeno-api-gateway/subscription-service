@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 
-	"github.com/Jalapeno-API-Gateway/subscription-service/helpers"
-	"github.com/Jalapeno-API-Gateway/subscription-service/model"
-	"github.com/Jalapeno-API-Gateway/subscription-service/pubsub"
+	"github.com/jalapeno-api-gateway/subscription-service/helpers"
+	"github.com/jalapeno-api-gateway/subscription-service/model"
+	"github.com/jalapeno-api-gateway/subscription-service/pubsub"
 )
 
 type subscriptionServiceServer struct {
