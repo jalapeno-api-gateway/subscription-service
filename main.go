@@ -6,10 +6,10 @@ import (
 	"os"
 	
 	"github.com/jalapeno-api-gateway/arangodb-adapter/arango"
-	"github.com/Jalapeno-API-Gateway/subscription-service/helpers"
-	"github.com/Jalapeno-API-Gateway/subscription-service/kafka"
-	"github.com/Jalapeno-API-Gateway/subscription-service/proto/subscriptionservice"
-	"github.com/Jalapeno-API-Gateway/subscription-service/pubsub"
+	"github.com/jalapeno-api-gateway/subscription-service/helpers"
+	"github.com/jalapeno-api-gateway/subscription-service/kafka"
+	"github.com/jalapeno-api-gateway/subscription-service/proto/subscriptionservice"
+	"github.com/jalapeno-api-gateway/subscription-service/pubsub"
 	"google.golang.org/grpc"
 )
 
