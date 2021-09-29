@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/Shopify/sarama"
-	"github.com/jalapeno-api-gateway/subscription-service/model"
+	"github.com/jalapeno-api-gateway/subscription-service/events"
 )
 
 const (
@@ -29,25 +29,25 @@ func unmarshalKafkaMessage(msg *sarama.ConsumerMessage) KafkaEventMessage {
 	return event
 }
 
-func createLoopbackInterfaceEvent(telemetryString string) model.LoopbackInterfaceEvent {
+func createLoopbackInterfaceEvent(telemetryString string) events.LoopbackInterfaceEvent {
 	ipv4Address := getIpAddress(telemetryString)
 	state := getState(telemetryString)
 	lastStateTransitionTime := getLastStateTransitionTime(telemetryString)
 
-	return model.LoopbackInterfaceEvent {
+	return events.LoopbackInterfaceEvent {
 		Ipv4Address:       			ipv4Address,
 		State:        				state,
 		LastStateTransitionTime:    int64(lastStateTransitionTime),
 	}
 }
 
-func createPhysicalInterfaceEvent(telemetryString string) model.PhysicalInterfaceEvent {
+func createPhysicalInterfaceEvent(telemetryString string) events.PhysicalInterfaceEvent {
 	dataRate := getDataRate(telemetryString)
 	ipv4Address := getIpAddress(telemetryString)
 	totalPacketsSent := getPacketsSent(telemetryString)
 	totalPacketsReceived := getPacketsReceived(telemetryString)
 
-	return model.PhysicalInterfaceEvent {
+	return events.PhysicalInterfaceEvent {
 		Ipv4Address:     ipv4Address,
 		DataRate:        int64(dataRate),
 		PacketsSent:     int64(totalPacketsSent),
@@ -61,7 +61,7 @@ func isLoopbackEvent(telemetryString string) bool {
 }
 
 func containsIpAddress(telemetryString string) bool {
-	return strings.Index(telemetryString, IpAddressIdentifier) != -1
+	return strings.Contains(telemetryString, IpAddressIdentifier)
 }
 
 func getInterfaceName(telemetryString string) string {

@@ -1,4 +1,4 @@
-package model
+package events
 
 type TopologyEvent struct {
 	Action   string

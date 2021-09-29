@@ -77,8 +77,12 @@ github.com/hashicorp/go-uuid v1.0.2 h1:cfejS+Tpcp13yd5nYHWDI6qVCny6wyX2Mt5SGur2I
 github.com/hashicorp/go-uuid v1.0.2/go.mod h1:6SBZvOh/SIDV7/2o3Jml5SYk/TvGqwFJ/bN7x4byOro=
 github.com/jalapeno-api-gateway/arangodb-adapter v1.0.0 h1:Rp5CoJeK0FKNGiYcQJOtK8uxF5kILgnV7XRk7EkMFBo=
 github.com/jalapeno-api-gateway/arangodb-adapter v1.0.0/go.mod h1:tyT3RcXmzbyUh97NHYxn3aJUeCa8AAHWP7VKxW+NTp0=
-github.com/jalapeno-api-gateway/model v1.0.0 h1:rPIZX77fxOWdSitn3d9gvKS55WVOpxh7CK2IZOCjzPM=
+github.com/jalapeno-api-gateway/model v1.0.0 h1:9er/jxGfxCtHEfTbaDtOFX9J88aetbSKJ4fBk5mAIc4=
 github.com/jalapeno-api-gateway/model v1.0.0/go.mod h1:COkePfyzegn6nHfOprW5j7WyFp+dYhQwW9ttET2by3s=
+github.com/jalapeno-api-gateway/model v1.0.1 h1:kOeTS28cdKrHw2FLrxKNWk7DFNMhNXL0J+KOfZCfDjs=
+github.com/jalapeno-api-gateway/model v1.0.1/go.mod h1:COkePfyzegn6nHfOprW5j7WyFp+dYhQwW9ttET2by3s=
+github.com/jalapeno-api-gateway/model v1.0.2 h1:Ys8QlERWm8L8mqGMgK3JfgTLGsX9NphIl+9bQ6QOPBE=
+github.com/jalapeno-api-gateway/model v1.0.2/go.mod h1:COkePfyzegn6nHfOprW5j7WyFp+dYhQwW9ttET2by3s=
 github.com/jcmturner/aescts/v2 v2.0.0 h1:9YKLH6ey7H4eDBXW8khjYslgyqG2xZikXP0EQFKrle8=
 github.com/jcmturner/aescts/v2 v2.0.0/go.mod h1:AiaICIRyfYg35RUkr8yESTqvSy7csK90qZ5xfvvsoNs=
 github.com/jcmturner/dnsutils/v2 v2.0.0 h1:lltnkeZGL0wILNvrNiVCR6Ro5PGU/SeBvVO/8c/iPbo=

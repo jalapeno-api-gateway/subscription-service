@@ -5,14 +5,14 @@ import (
 
 	"github.com/jalapeno-api-gateway/subscription-service/pubsub"
 	"github.com/jalapeno-api-gateway/arangodb-adapter/arango"
-	"github.com/jalapeno-api-gateway/subscription-service/model"
+	"github.com/jalapeno-api-gateway/subscription-service/events"
 	"github.com/jalapeno-api-gateway/model/class"
 )
 
 func handleTopologyEvent(msg KafkaEventMessage, className class.Class) {
 	ctx := context.Background()
 	document := fetchDocument(ctx, msg, className)
-	event := model.TopologyEvent{Action: msg.Action, Key: msg.Key, Document: document}
+	event := events.TopologyEvent{Action: msg.Action, Key: msg.Key, Document: document}
 	publishTopologyEvent(event, className)
 }
 
@@ -32,10 +32,10 @@ func fetchDocument(ctx context.Context, msg KafkaEventMessage, className class.C
 	}
 }
 
-func publishTopologyEvent(event model.TopologyEvent, className class.Class) {
+func publishTopologyEvent(event events.TopologyEvent, className class.Class) {
 	switch className {
-		case class.LSNode: pubsub.LsNodeTopic.Publish(event)
-		case class.LSLink: pubsub.LsLinkTopic.Publish(event)
+		case class.LSNode: pubsub.LSNodeTopic.Publish(event)
+		case class.LSLink: pubsub.LSLinkTopic.Publish(event)
 	}
 }
 
