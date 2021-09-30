@@ -1,18 +1,16 @@
 package kafka
 
 import (
-	"os"
-
 	"github.com/jalapeno-api-gateway/jagw-core/model/class"
 )
 
 func StartEventConsumption() {
 	consumer := newSaramaConsumer()
-	lsNodeEventsConsumer := newPartitionConsumer(consumer, os.Getenv("LSNODE_KAFKA_TOPIC"))
-	lsLinkEventsConsumer := newPartitionConsumer(consumer, os.Getenv("LSLINK_KAFKA_TOPIC"))
-	lsPrefixEventsConsumer := newPartitionConsumer(consumer, os.Getenv("LSPREFIX_KAFKA_TOPIC"))
-	lsSRv6SIDEventsConsumer := newPartitionConsumer(consumer, os.Getenv("LSSRV6SID_KAFKA_TOPIC"))
-	telemetryConsumer := newPartitionConsumer(consumer, os.Getenv("TELEMETRY_KAFKA_TOPIC"))
+	lsNodeEventsConsumer := newPartitionConsumer(consumer, LSNODE_KAFKA_TOPIC)
+	lsLinkEventsConsumer := newPartitionConsumer(consumer, LSLINK_KAFKA_TOPIC)
+	lsPrefixEventsConsumer := newPartitionConsumer(consumer, LSPREFIX_KAFKA_TOPIC)
+	lsSRv6SIDEventsConsumer := newPartitionConsumer(consumer, LSSRV6SID_KAFKA_TOPIC)
+	telemetryConsumer := newPartitionConsumer(consumer, TELEMETRY_KAFKA_TOPIC)
 	
 	go func() {
 		defer func() {
