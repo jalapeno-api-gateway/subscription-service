@@ -3,7 +3,7 @@ package kafka
 import (
 	"os"
 
-	"github.com/jalapeno-api-gateway/model/class"
+	"github.com/jalapeno-api-gateway/jagw-core/model/class"
 )
 
 func StartEventConsumption() {

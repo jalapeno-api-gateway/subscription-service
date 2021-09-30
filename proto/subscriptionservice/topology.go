@@ -1,7 +1,7 @@
 package subscriptionservice
 
 import (
-	"github.com/jalapeno-api-gateway/arangodb-adapter/arango"
+	"github.com/jalapeno-api-gateway/jagw-core/arango"
 	"github.com/jalapeno-api-gateway/subscription-service/events"
 	"google.golang.org/protobuf/proto"
 )

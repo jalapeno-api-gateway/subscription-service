@@ -2,11 +2,11 @@ package kafka
 
 import (
 	"context"
-
-	"github.com/jalapeno-api-gateway/subscription-service/pubsub"
-	"github.com/jalapeno-api-gateway/arangodb-adapter/arango"
+	
+	"github.com/jalapeno-api-gateway/jagw-core/arango"
+	"github.com/jalapeno-api-gateway/jagw-core/model/class"
 	"github.com/jalapeno-api-gateway/subscription-service/events"
-	"github.com/jalapeno-api-gateway/model/class"
+	"github.com/jalapeno-api-gateway/subscription-service/pubsub"
 )
 
 func handleTopologyEvent(msg KafkaEventMessage, className class.Class) {

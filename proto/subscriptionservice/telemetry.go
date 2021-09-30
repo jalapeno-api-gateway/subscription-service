@@ -1,7 +1,7 @@
 package subscriptionservice
 
 import (
-	"github.com/jalapeno-api-gateway/model/property"
+	"github.com/jalapeno-api-gateway/jagw-core/model/property"
 	"github.com/jalapeno-api-gateway/subscription-service/events"
 	"google.golang.org/protobuf/proto"
 )
@@ -31,7 +31,7 @@ func convertPhysicalInterfaceEvent(event events.PhysicalInterfaceEvent, property
 
 func convertLoopbackInterfaceEvent(event events.LoopbackInterfaceEvent, propertyNames []string) *TelemetryEvent {
 	if len(propertyNames) == 0 { // If no propertyNames were provided, all Properties are returned to the SR-App
-		propertyNames = property.AllPhysicalInterfaceProperties
+		propertyNames = property.AllLoopbackInterfaceProperties
 	}
 
 	telemetryEvent := TelemetryEvent{
