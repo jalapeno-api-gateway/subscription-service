@@ -14,8 +14,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-const ARANGO_DB_PORT = 30852
-
 func main() {
 	log.Print("Starting Subscription Service ...")
 	arango.InitializeArangoDbAdapter(getDefaultArangoDbConfig())
@@ -44,7 +42,7 @@ func main() {
 
 func getDefaultArangoDbConfig() arango.ArangoDbConfig {
 	return arango.ArangoDbConfig{
-		Server: fmt.Sprintf("http://%s:%d", os.Getenv("JALAPENO_SERVER"), ARANGO_DB_PORT),
+		Server: fmt.Sprintf("http://%s", os.Getenv("ARANGO_ADDRESS")),
 		User: os.Getenv("ARANGO_DB_USER"),
 		Password: os.Getenv("ARANGO_DB_PASSWORD"),
 		DbName: os.Getenv("ARANGO_DB_NAME"),
