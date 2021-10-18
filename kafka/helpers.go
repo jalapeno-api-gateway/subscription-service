@@ -11,6 +11,8 @@ import (
 )
 
 const (
+	HostNameIdentifier = "source"
+	LinkIdIdentifier = "if_index"
 	InterfaceNameIdentifier = "interface_name"
 	IpAddressIdentifier = "ip_information/ip_address"
 	DataRateIdentifier = "data_rates/output_data_rate"
@@ -30,11 +32,15 @@ func unmarshalKafkaMessage(msg *sarama.ConsumerMessage) KafkaEventMessage {
 }
 
 func createLoopbackInterfaceEvent(telemetryString string) events.LoopbackInterfaceEvent {
+	hostName := getHostName(telemetryString)
+	linkId := getLinkId(telemetryString)
 	ipv4Address := getIpAddress(telemetryString)
 	state := getState(telemetryString)
 	lastStateTransitionTime := getLastStateTransitionTime(telemetryString)
 
 	return events.LoopbackInterfaceEvent {
+		Hostname: 					hostName,
+		LinkID: 					int32(linkId),
 		Ipv4Address:       			ipv4Address,
 		State:        				state,
 		LastStateTransitionTime:    int64(lastStateTransitionTime),
@@ -42,16 +48,20 @@ func createLoopbackInterfaceEvent(telemetryString string) events.LoopbackInterfa
 }
 
 func createPhysicalInterfaceEvent(telemetryString string) events.PhysicalInterfaceEvent {
+	hostName := getHostName(telemetryString)
+	linkId := getLinkId(telemetryString)
 	dataRate := getDataRate(telemetryString)
 	ipv4Address := getIpAddress(telemetryString)
 	totalPacketsSent := getPacketsSent(telemetryString)
 	totalPacketsReceived := getPacketsReceived(telemetryString)
 
 	return events.PhysicalInterfaceEvent {
-		Ipv4Address:     ipv4Address,
-		DataRate:        int64(dataRate),
-		PacketsSent:     int64(totalPacketsSent),
-		PacketsReceived: int64(totalPacketsReceived),
+		Hostname: 			hostName,
+		LinkID: 			int32(linkId),
+		Ipv4Address:     	ipv4Address,
+		DataRate:        	int64(dataRate),
+		PacketsSent:     	int64(totalPacketsSent),
+		PacketsReceived: 	int64(totalPacketsReceived),
 	}
 }
 
@@ -62,6 +72,14 @@ func isLoopbackEvent(telemetryString string) bool {
 
 func containsIpAddress(telemetryString string) bool {
 	return strings.Contains(telemetryString, IpAddressIdentifier)
+}
+
+func getHostName(telemetryString string) string {
+	return extractStringValue(telemetryString, HostNameIdentifier)
+}
+
+func getLinkId(telemetryString string) int {
+	return extractIntValue(telemetryString, LinkIdIdentifier)
 }
 
 func getInterfaceName(telemetryString string) string {
