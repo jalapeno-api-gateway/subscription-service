@@ -75,7 +75,7 @@ github.com/gorilla/sessions v1.2.1/go.mod h1:dk2InVEVJ0sfLlnXv9EAgkf6ecYs/i80K/z
 github.com/grpc-ecosystem/grpc-gateway v1.16.0/go.mod h1:BDjrQk3hbvj6Nolgz8mAMFbcEtjT1g+wF4CSlocrBnw=
 github.com/hashicorp/go-uuid v1.0.2 h1:cfejS+Tpcp13yd5nYHWDI6qVCny6wyX2Mt5SGur2IGE=
 github.com/hashicorp/go-uuid v1.0.2/go.mod h1:6SBZvOh/SIDV7/2o3Jml5SYk/TvGqwFJ/bN7x4byOro=
-github.com/jalapeno-api-gateway/jagw-core v1.0.0 h1:Yplk/EdwNm1ZZ42afKaHrHFhSnuxtojMjrgsnq3Joss=
+github.com/jalapeno-api-gateway/jagw-core v1.0.0 h1:H11U4ASG5wgTJI7fpQl18J0LD6ikk26OV5GygDjd12o=
 github.com/jalapeno-api-gateway/jagw-core v1.0.0/go.mod h1:fkZdojcIvilo+8KXYGsuK7YV68tT2dAIf9i2FvGQPCM=
 github.com/jalapeno-api-gateway/protorepo-jagw-go v1.0.0 h1:h85Q+GVb3/vKmHGEeH6mRV0fvmcQmpHnasmA9+2nDgw=
 github.com/jalapeno-api-gateway/protorepo-jagw-go v1.0.0/go.mod h1:hPnCjb90PbybI5KGH5JVksnF6903Y2okKJ2Fs5pJW5U=
