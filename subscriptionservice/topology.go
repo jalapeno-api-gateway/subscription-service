@@ -2,8 +2,8 @@ package subscriptionservice
 
 import (
 	"github.com/jalapeno-api-gateway/jagw-core/arango"
-	"github.com/jalapeno-api-gateway/subscription-service/events"
 	"github.com/jalapeno-api-gateway/protorepo-jagw-go/jagw"
+	"github.com/jalapeno-api-gateway/subscription-service/events"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -158,16 +158,15 @@ func convertLsSrv6SidEvent(event events.TopologyEvent) *jagw.LsSrv6SidEvent {
 
 func convertLsNodeEdgeEvent(event events.TopologyEvent) *jagw.LsNodeEdgeEvent {
 	document := event.Document.(arango.LSNode_Edge)
-
 	response := &jagw.LsNodeEdgeEvent{
 		Action: proto.String(event.Action),
 		Key:    proto.String(event.Key),
 	}
-
+	
 	if event.Action == "del" {
 		return response
 	}
-
+	
 	response.LsNodeEdge = &jagw.LsNodeEdge{
 		Key: proto.String(document.Key),
 		Id: proto.String(document.ID),
