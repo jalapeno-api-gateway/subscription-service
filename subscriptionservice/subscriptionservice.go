@@ -23,7 +23,7 @@ func (s *subscriptionServiceServer) SubscribeToLsNodes(subscription *jagw.Topolo
 	log.Printf("SR-App subscribing to LsNodes\n")
 
 	cctx, cancel := context.WithCancel(context.Background())
-	sub := pubsub.LSNodeTopic.Subscribe()
+	sub := pubsub.LsNodeTopic.Subscribe()
 	defer func() {
 		sub.Unsubscribe()
 	}()
@@ -46,7 +46,7 @@ func (s *subscriptionServiceServer) SubscribeToLsLinks(subscription *jagw.Topolo
 	log.Printf("SR-App subscribing to LsLinks\n")
 
 	cctx, cancel := context.WithCancel(context.Background())
-	sub := pubsub.LSLinkTopic.Subscribe()
+	sub := pubsub.LsLinkTopic.Subscribe()
 	defer func() {
 		sub.Unsubscribe()
 	}()
@@ -69,7 +69,7 @@ func (s *subscriptionServiceServer) SubscribeToLsPrefixes(subscription *jagw.Top
 	log.Printf("SR-App subscribing to LsLinks\n")
 
 	cctx, cancel := context.WithCancel(context.Background())
-	sub := pubsub.LSPrefixTopic.Subscribe()
+	sub := pubsub.LsPrefixTopic.Subscribe()
 	defer func() {
 		sub.Unsubscribe()
 	}()
@@ -92,7 +92,7 @@ func (s *subscriptionServiceServer) SubscribeToLsSrv6Sids(subscription *jagw.Top
 	log.Printf("SR-App subscribing to LsLinks\n")
 
 	cctx, cancel := context.WithCancel(context.Background())
-	sub := pubsub.LSSRv6SIDTopic.Subscribe()
+	sub := pubsub.LsSrv6SidTopic.Subscribe()
 	defer func() {
 		sub.Unsubscribe()
 	}()
