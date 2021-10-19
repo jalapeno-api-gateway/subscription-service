@@ -31,7 +31,7 @@ func (s *subscriptionServiceServer) SubscribeToLsNodes(subscription *jagw.Topolo
 	sub.Receive(cctx, func(msg *interface{}) {
 		event := (*msg).(events.TopologyEvent)
 		if len(subscription.Keys) == 0 || helpers.IsInSlice(subscription.Keys, event.Key) {
-			response := convertLSNodeEvent(event)
+			response := convertLsNodeEvent(event)
 			err := responseStream.Send(response)
 			if err != nil {
 				cancel()
@@ -54,7 +54,7 @@ func (s *subscriptionServiceServer) SubscribeToLsLinks(subscription *jagw.Topolo
 	sub.Receive(cctx, func(msg *interface{}) {
 		event := (*msg).(events.TopologyEvent)
 		if len(subscription.Keys) == 0 || helpers.IsInSlice(subscription.Keys, event.Key) {
-			response := convertLSLinkEvent(event)
+			response := convertLsLinkEvent(event)
 			err := responseStream.Send(response)
 			if err != nil {
 				cancel()
@@ -77,7 +77,7 @@ func (s *subscriptionServiceServer) SubscribeToLsPrefixes(subscription *jagw.Top
 	sub.Receive(cctx, func(msg *interface{}) {
 		event := (*msg).(events.TopologyEvent)
 		if len(subscription.Keys) == 0 || helpers.IsInSlice(subscription.Keys, event.Key) {
-			response := convertLSPrefixEvent(event)
+			response := convertLsPrefixEvent(event)
 			err := responseStream.Send(response)
 			if err != nil {
 				cancel()
@@ -89,7 +89,7 @@ func (s *subscriptionServiceServer) SubscribeToLsPrefixes(subscription *jagw.Top
 }
 
 func (s *subscriptionServiceServer) SubscribeToLsSrv6Sids(subscription *jagw.TopologySubscription, responseStream jagw.SubscriptionService_SubscribeToLsSrv6SidsServer) error {
-	log.Printf("SR-App subscribing to LsLinks\n")
+	log.Printf("SR-App subscribing to LsSrv6Sids\n")
 
 	cctx, cancel := context.WithCancel(context.Background())
 	sub := pubsub.LsSrv6SidTopic.Subscribe()
@@ -100,7 +100,30 @@ func (s *subscriptionServiceServer) SubscribeToLsSrv6Sids(subscription *jagw.Top
 	sub.Receive(cctx, func(msg *interface{}) {
 		event := (*msg).(events.TopologyEvent)
 		if len(subscription.Keys) == 0 || helpers.IsInSlice(subscription.Keys, event.Key) {
-			response := convertLSSRv6SIDEvent(event)
+			response := convertLsSrv6SidEvent(event)
+			err := responseStream.Send(response)
+			if err != nil {
+				cancel()
+			}
+		}
+	})
+
+	return nil
+}
+
+func (s *subscriptionServiceServer) SubscribeToLsNodeEdges(subscription *jagw.TopologySubscription, responseStream jagw.SubscriptionService_SubscribeToLsNodeEdgesServer) error {
+	log.Printf("SR-App subscribing to LsNodeEdges\n")
+
+	cctx, cancel := context.WithCancel(context.Background())
+	sub := pubsub.LsNodeEdgeTopic.Subscribe()
+	defer func() {
+		sub.Unsubscribe()
+	}()
+
+	sub.Receive(cctx, func(msg *interface{}) {
+		event := (*msg).(events.TopologyEvent)
+		if len(subscription.Keys) == 0 || helpers.IsInSlice(subscription.Keys, event.Key) {
+			response := convertLsNodeEdgeEvent(event)
 			err := responseStream.Send(response)
 			if err != nil {
 				cancel()

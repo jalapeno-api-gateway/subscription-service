@@ -10,6 +10,7 @@ func StartEventConsumption() {
 	lsLinkEventsConsumer := newPartitionConsumer(consumer, LSLINK_KAFKA_TOPIC)
 	lsPrefixEventsConsumer := newPartitionConsumer(consumer, LSPREFIX_KAFKA_TOPIC)
 	lsSrv6SidEventsConsumer := newPartitionConsumer(consumer, LSSRV6SID_KAFKA_TOPIC)
+	lsNodeEdgeEventsConsumer := newPartitionConsumer(consumer, LSNODE_EDGE_KAFKA_TOPIC)
 	telemetryConsumer := newPartitionConsumer(consumer, TELEMETRY_KAFKA_TOPIC)
 	
 	go func() {
@@ -20,6 +21,7 @@ func StartEventConsumption() {
 				lsLinkEventsConsumer,
 				lsPrefixEventsConsumer,
 				lsSrv6SidEventsConsumer,
+				lsNodeEdgeEventsConsumer,
 				telemetryConsumer,
 			)
 		}()
@@ -30,6 +32,7 @@ func StartEventConsumption() {
 			case msg := <-lsLinkEventsConsumer.Messages(): handleTopologyEvent(unmarshalKafkaMessage(msg), class.LsLink)
 			case msg := <-lsPrefixEventsConsumer.Messages(): handleTopologyEvent(unmarshalKafkaMessage(msg), class.LsPrefix)
 			case msg := <-lsSrv6SidEventsConsumer.Messages(): handleTopologyEvent(unmarshalKafkaMessage(msg), class.LsSrv6Sid)
+			case msg := <-lsNodeEdgeEventsConsumer.Messages(): handleTopologyEvent(unmarshalKafkaMessage(msg), class.LsNodeEdge)
 			case msg := <-telemetryConsumer.Messages(): handleTelemetryEvent(string(msg.Value))
 			}
 		}
