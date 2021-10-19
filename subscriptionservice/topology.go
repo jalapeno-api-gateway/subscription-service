@@ -157,7 +157,7 @@ func convertLsSrv6SidEvent(event events.TopologyEvent) *jagw.LsSrv6SidEvent {
 }
 
 func convertLsNodeEdgeEvent(event events.TopologyEvent) *jagw.LsNodeEdgeEvent {
-	document := event.Document.(arango.LSNodeEdge)
+	document := event.Document.(arango.LSNode_Edge)
 
 	response := &jagw.LsNodeEdgeEvent{
 		Action: proto.String(event.Action),
