@@ -7,6 +7,8 @@ type TopologyEvent struct {
 }
 
 type PhysicalInterfaceEvent struct {
+	Hostname string
+	LinkID int32
 	Ipv4Address		string
 	DataRate        int64
 	PacketsSent     int64
@@ -14,6 +16,8 @@ type PhysicalInterfaceEvent struct {
 }
 
 type LoopbackInterfaceEvent struct {
+	Hostname string
+	LinkID int32
 	Ipv4Address					string
 	State           			string
 	LastStateTransitionTime     int64

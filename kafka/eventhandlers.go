@@ -19,23 +19,29 @@ func handleTopologyEvent(msg KafkaEventMessage, className class.Class) {
 func fetchDocument(ctx context.Context, msg KafkaEventMessage, className class.Class) interface{} {
 	if msg.Action == "del" {
 		switch className {
-			case class.LSNode: return arango.LSNode{}
-			case class.LSLink: return arango.LSLink{}
+			case class.LsNode: return arango.LSNode{}
+			case class.LsLink: return arango.LSLink{}
+			case class.LsPrefix: return arango.LSPrefix{}
+			case class.LsSrv6Sid: return arango.LSSRv6SID{}
 			default: return nil
 		}
 	}
 
 	switch className {
-		case class.LSNode: return arango.FetchLSNode(ctx, msg.Key)
-		case class.LSLink: return arango.FetchLSLink(ctx, msg.Key)
+		case class.LsNode: return arango.FetchLSNode(ctx, msg.Key)
+		case class.LsLink: return arango.FetchLSLink(ctx, msg.Key)
+		case class.LsPrefix: return arango.FetchLSPrefix(ctx, msg.Key)
+		case class.LsSrv6Sid: return arango.FetchLSSRv6SID(ctx, msg.Key)
 		default: return nil
 	}
 }
 
 func publishTopologyEvent(event events.TopologyEvent, className class.Class) {
 	switch className {
-		case class.LSNode: pubsub.LSNodeTopic.Publish(event)
-		case class.LSLink: pubsub.LSLinkTopic.Publish(event)
+		case class.LsNode: pubsub.LsNodeTopic.Publish(event)
+		case class.LsLink: pubsub.LsLinkTopic.Publish(event)
+		case class.LsPrefix: pubsub.LsPrefixTopic.Publish(event)
+		case class.LsSrv6Sid: pubsub.LsSrv6SidTopic.Publish(event)
 	}
 }
 

@@ -20,18 +20,18 @@ type threadSafeTopic struct {
 	subscriptions []*Subscription
 }
 
-var LSNodeTopic *threadSafeTopic
-var LSLinkTopic *threadSafeTopic
-var LSPrefixTopic *threadSafeTopic
-var LSSRv6SIDTopic *threadSafeTopic
+var LsNodeTopic *threadSafeTopic
+var LsLinkTopic *threadSafeTopic
+var LsPrefixTopic *threadSafeTopic
+var LsSrv6SidTopic *threadSafeTopic
 var PhysicalInterfaceTopic *threadSafeTopic
 var LoopbackInterfaceTopic *threadSafeTopic
 
 func InitializeTopics() {
-	LSNodeTopic = &threadSafeTopic{}
-	LSLinkTopic = &threadSafeTopic{}
-	LSPrefixTopic = &threadSafeTopic{}
-	LSSRv6SIDTopic = &threadSafeTopic{}
+	LsNodeTopic = &threadSafeTopic{}
+	LsLinkTopic = &threadSafeTopic{}
+	LsPrefixTopic = &threadSafeTopic{}
+	LsSrv6SidTopic = &threadSafeTopic{}
 	PhysicalInterfaceTopic = &threadSafeTopic{}
 	LoopbackInterfaceTopic = &threadSafeTopic{}
 }

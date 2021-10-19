@@ -9,8 +9,9 @@ import (
 	"github.com/jalapeno-api-gateway/jagw-core/arango"
 	"github.com/jalapeno-api-gateway/subscription-service/helpers"
 	"github.com/jalapeno-api-gateway/subscription-service/kafka"
-	"github.com/jalapeno-api-gateway/subscription-service/proto/subscriptionservice"
+	"github.com/jalapeno-api-gateway/subscription-service/subscriptionservice"
 	"github.com/jalapeno-api-gateway/subscription-service/pubsub"
+	"github.com/jalapeno-api-gateway/protorepo-jagw-go/jagw"
 	"google.golang.org/grpc"
 )
 
@@ -34,7 +35,7 @@ func main() {
 		grpcServer.Stop()
 	}()
 
-	subscriptionservice.RegisterSubscriptionServiceServer(grpcServer, subscriptionservice.NewServer())
+	jagw.RegisterSubscriptionServiceServer(grpcServer, subscriptionservice.NewServer())
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve gRPC server: %v", err)
 	}

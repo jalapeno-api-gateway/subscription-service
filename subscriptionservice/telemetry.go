@@ -2,17 +2,18 @@ package subscriptionservice
 
 import (
 	"github.com/jalapeno-api-gateway/jagw-core/model/property"
+	"github.com/jalapeno-api-gateway/protorepo-jagw-go/jagw"
 	"github.com/jalapeno-api-gateway/subscription-service/events"
 	"google.golang.org/protobuf/proto"
 )
 
-func convertPhysicalInterfaceEvent(event events.PhysicalInterfaceEvent, propertyNames []string) *TelemetryEvent {
+func convertPhysicalInterfaceEvent(event events.PhysicalInterfaceEvent, propertyNames []string) *jagw.TelemetryEvent {
 	if len(propertyNames) == 0 { // If no propertyNames were provided, all Properties are returned to the SR-App
 		propertyNames = property.AllPhysicalInterfaceProperties
 	}
 
-	telemetryEvent := TelemetryEvent{
-		Ipv4Address: proto.String(event.Ipv4Address),
+	telemetryEvent := jagw.TelemetryEvent{
+		InterfaceId: &jagw.InterfaceIdentifier{Hostname: &event.Hostname, LinkId: &event.LinkID},
 	}
 
 	for _, propertyName := range propertyNames {
@@ -29,13 +30,13 @@ func convertPhysicalInterfaceEvent(event events.PhysicalInterfaceEvent, property
 	return &telemetryEvent
 }
 
-func convertLoopbackInterfaceEvent(event events.LoopbackInterfaceEvent, propertyNames []string) *TelemetryEvent {
+func convertLoopbackInterfaceEvent(event events.LoopbackInterfaceEvent, propertyNames []string) *jagw.TelemetryEvent {
 	if len(propertyNames) == 0 { // If no propertyNames were provided, all Properties are returned to the SR-App
 		propertyNames = property.AllLoopbackInterfaceProperties
 	}
 
-	telemetryEvent := TelemetryEvent{
-		Ipv4Address: proto.String(event.Ipv4Address),
+	telemetryEvent := jagw.TelemetryEvent{
+		InterfaceId: &jagw.InterfaceIdentifier{Hostname: &event.Hostname, LinkId: &event.LinkID},
 	}
 
 	for _, propertyName := range propertyNames {
