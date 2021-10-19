@@ -24,6 +24,7 @@ var LsNodeTopic *threadSafeTopic
 var LsLinkTopic *threadSafeTopic
 var LsPrefixTopic *threadSafeTopic
 var LsSrv6SidTopic *threadSafeTopic
+var LsNodeEdgeTopic *threadSafeTopic
 var PhysicalInterfaceTopic *threadSafeTopic
 var LoopbackInterfaceTopic *threadSafeTopic
 
@@ -32,6 +33,7 @@ func InitializeTopics() {
 	LsLinkTopic = &threadSafeTopic{}
 	LsPrefixTopic = &threadSafeTopic{}
 	LsSrv6SidTopic = &threadSafeTopic{}
+	LsNodeEdgeTopic = &threadSafeTopic{}
 	PhysicalInterfaceTopic = &threadSafeTopic{}
 	LoopbackInterfaceTopic = &threadSafeTopic{}
 }

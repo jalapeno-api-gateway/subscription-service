@@ -2,12 +2,12 @@ package subscriptionservice
 
 import (
 	"github.com/jalapeno-api-gateway/jagw-core/arango"
-	"github.com/jalapeno-api-gateway/subscription-service/events"
 	"github.com/jalapeno-api-gateway/protorepo-jagw-go/jagw"
+	"github.com/jalapeno-api-gateway/subscription-service/events"
 	"google.golang.org/protobuf/proto"
 )
 
-func convertLSNodeEvent(event events.TopologyEvent) *jagw.LsNodeEvent {
+func convertLsNodeEvent(event events.TopologyEvent) *jagw.LsNodeEvent {
 	document := event.Document.(arango.LSNode)
 
 	response := &jagw.LsNodeEvent{
@@ -43,7 +43,7 @@ func convertLSNodeEvent(event events.TopologyEvent) *jagw.LsNodeEvent {
 	return response
 }
 
-func convertLSLinkEvent(event events.TopologyEvent) *jagw.LsLinkEvent {
+func convertLsLinkEvent(event events.TopologyEvent) *jagw.LsLinkEvent {
 	document := event.Document.(arango.LSLink)
 
 	response := &jagw.LsLinkEvent{
@@ -81,7 +81,7 @@ func convertLSLinkEvent(event events.TopologyEvent) *jagw.LsLinkEvent {
 	return response
 }
 
-func convertLSPrefixEvent(event events.TopologyEvent) *jagw.LsPrefixEvent {
+func convertLsPrefixEvent(event events.TopologyEvent) *jagw.LsPrefixEvent {
 	document := event.Document.(arango.LSPrefix)
 
 	response := &jagw.LsPrefixEvent{
@@ -119,7 +119,7 @@ func convertLSPrefixEvent(event events.TopologyEvent) *jagw.LsPrefixEvent {
 	return response
 }
 
-func convertLSSRv6SIDEvent(event events.TopologyEvent) *jagw.LsSrv6SidEvent {
+func convertLsSrv6SidEvent(event events.TopologyEvent) *jagw.LsSrv6SidEvent {
 	document := event.Document.(arango.LSSRv6SID)
 
 	response := &jagw.LsSrv6SidEvent{
@@ -151,6 +151,28 @@ func convertLSSRv6SIDEvent(event events.TopologyEvent) *jagw.LsSrv6SidEvent {
 		IsPrepolicy: proto.Bool(document.IsPrepolicy),
 		IsAdjRibIn: proto.Bool(document.IsAdjRIBIn),
 		Srv6Sid: proto.String(document.SRv6SID),
+	}
+
+	return response
+}
+
+func convertLsNodeEdgeEvent(event events.TopologyEvent) *jagw.LsNodeEdgeEvent {
+	document := event.Document.(arango.LSNode_Edge)
+	response := &jagw.LsNodeEdgeEvent{
+		Action: proto.String(event.Action),
+		Key:    proto.String(event.Key),
+	}
+	
+	if event.Action == "del" {
+		return response
+	}
+	
+	response.LsNodeEdge = &jagw.LsNodeEdge{
+		Key: proto.String(document.Key),
+		Id: proto.String(document.ID),
+		From: proto.String(document.From),
+		To: proto.String(document.To),
+		Link: proto.String(document.Link),
 	}
 
 	return response
