@@ -80,8 +80,8 @@ github.com/hashicorp/go-uuid v1.0.2 h1:cfejS+Tpcp13yd5nYHWDI6qVCny6wyX2Mt5SGur2I
 github.com/hashicorp/go-uuid v1.0.2/go.mod h1:6SBZvOh/SIDV7/2o3Jml5SYk/TvGqwFJ/bN7x4byOro=
 github.com/jalapeno-api-gateway/jagw-core v1.1.0 h1:cmxul52H2/HqDjStbGJAkflmD9U4ydpmFUewwmuA5BQ=
 github.com/jalapeno-api-gateway/jagw-core v1.1.0/go.mod h1:fkZdojcIvilo+8KXYGsuK7YV68tT2dAIf9i2FvGQPCM=
-github.com/jalapeno-api-gateway/protorepo-jagw-go v1.1.0 h1:PMFh2RGixlP6sDbz9j95DWgw8/PAUJEI5XoesBLwvo0=
-github.com/jalapeno-api-gateway/protorepo-jagw-go v1.1.0/go.mod h1:CPDdUkBdUYu8OShpuAdGjOUNDBef6dvfmJGVtEKH/g8=
+github.com/jalapeno-api-gateway/protorepo-jagw-go v1.1.2 h1:k3J/9ZPufsCQjKEhSXt27Tqvje4am5d/38WY0Aws6bA=
+github.com/jalapeno-api-gateway/protorepo-jagw-go v1.1.2/go.mod h1:CPDdUkBdUYu8OShpuAdGjOUNDBef6dvfmJGVtEKH/g8=
 github.com/jcmturner/aescts/v2 v2.0.0 h1:9YKLH6ey7H4eDBXW8khjYslgyqG2xZikXP0EQFKrle8=
 github.com/jcmturner/aescts/v2 v2.0.0/go.mod h1:AiaICIRyfYg35RUkr8yESTqvSy7csK90qZ5xfvvsoNs=
 github.com/jcmturner/dnsutils/v2 v2.0.0 h1:lltnkeZGL0wILNvrNiVCR6Ro5PGU/SeBvVO/8c/iPbo=
