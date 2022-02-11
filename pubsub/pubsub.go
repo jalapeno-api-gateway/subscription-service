@@ -2,10 +2,10 @@ package pubsub
 
 import (
 	"context"
-	"log"
 	"sync"
 
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 )
 
 type Subscription struct {
@@ -29,6 +29,7 @@ var PhysicalInterfaceTopic *threadSafeTopic
 var LoopbackInterfaceTopic *threadSafeTopic
 
 func InitializeTopics() {
+	logrus.Debug("Initializing PubSub Topics")
 	LsNodeTopic = &threadSafeTopic{}
 	LsLinkTopic = &threadSafeTopic{}
 	LsPrefixTopic = &threadSafeTopic{}
@@ -38,7 +39,8 @@ func InitializeTopics() {
 	LoopbackInterfaceTopic = &threadSafeTopic{}
 }
 
-func (topic *threadSafeTopic) Subscribe() *Subscription {
+func (topic *threadSafeTopic) Subscribe(logger *logrus.Entry) *Subscription {
+	logger.Debug("Subscribing to topic.")
 	s := topic.createNewSubscription()
 
 	topic.Lock()
@@ -48,7 +50,7 @@ func (topic *threadSafeTopic) Subscribe() *Subscription {
 	return s
 }
 
-func (s *Subscription) Unsubscribe() {
+func (s *Subscription) Unsubscribe(logger *logrus.Entry) {
 	s.topic.Lock()
 	defer s.topic.Unlock()
 
@@ -58,7 +60,7 @@ func (s *Subscription) Unsubscribe() {
 			return
 		}
 	}
-	log.Fatalf("Error when trying to remove subscription: %s from slice", s.id)
+	logger.Panic("Error when trying to remove subscription from slice")
 }
 
 func (topic *threadSafeTopic) createNewSubscription() *Subscription {

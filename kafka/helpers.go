@@ -2,12 +2,12 @@ package kafka
 
 import (
 	"encoding/json"
-	"log"
 	"strconv"
 	"strings"
 
 	"github.com/Shopify/sarama"
 	"github.com/jalapeno-api-gateway/subscription-service/events"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -26,7 +26,7 @@ func unmarshalKafkaMessage(msg *sarama.ConsumerMessage) KafkaEventMessage {
 	var event KafkaEventMessage
 	err := json.Unmarshal(msg.Value, &event)
 	if err != nil {
-		log.Fatalf("Could not unmarshal kafka message, %v", err)
+		logrus.WithError(err).Panic("Failed to unmarshal Kafka message.")
 	}
 	return event
 }
@@ -119,7 +119,7 @@ func extractIntValue(telemetryString string, propertyName string) int {
 	trimmedValue := untrimmedValue[:len(untrimmedValue)-1] //every int value has the letter 'i' at the end
 	value, err := strconv.Atoi(trimmedValue)
 	if err != nil {
-		log.Fatalf("Failed to convert string to int: %v", err)
+		logrus.WithError(err).Panic("Failed to convert string to int.")
 	}
 	return value
 }

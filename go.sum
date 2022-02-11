@@ -78,8 +78,12 @@ github.com/gorilla/sessions v1.2.1/go.mod h1:dk2InVEVJ0sfLlnXv9EAgkf6ecYs/i80K/z
 github.com/grpc-ecosystem/grpc-gateway v1.16.0/go.mod h1:BDjrQk3hbvj6Nolgz8mAMFbcEtjT1g+wF4CSlocrBnw=
 github.com/hashicorp/go-uuid v1.0.2 h1:cfejS+Tpcp13yd5nYHWDI6qVCny6wyX2Mt5SGur2IGE=
 github.com/hashicorp/go-uuid v1.0.2/go.mod h1:6SBZvOh/SIDV7/2o3Jml5SYk/TvGqwFJ/bN7x4byOro=
-github.com/jalapeno-api-gateway/jagw-core v1.2.1 h1:MvZ/k8fKeyY8ZYunnKb0OYfv8tgYuk+VHEPdXR17eyc=
-github.com/jalapeno-api-gateway/jagw-core v1.2.1/go.mod h1:fkZdojcIvilo+8KXYGsuK7YV68tT2dAIf9i2FvGQPCM=
+github.com/jalapeno-api-gateway/jagw-core v1.2.1-0.20220210171003-3847fbd95b3f h1:ZJpr21uVd5KK64xmn19SFZN9xxGyrjhnDTMGI3QLG5w=
+github.com/jalapeno-api-gateway/jagw-core v1.2.1-0.20220210171003-3847fbd95b3f/go.mod h1:+bEuZxhWViZuVh5nNeW5DpuGyt/bmiLM2lCW6++XZkU=
+github.com/jalapeno-api-gateway/jagw-core v1.2.1-0.20220210201942-b86e81bcd744 h1:q1fcVwXocY7aKHC46DmsaTnGUhE2iOKD5BhB5RU85+4=
+github.com/jalapeno-api-gateway/jagw-core v1.2.1-0.20220210201942-b86e81bcd744/go.mod h1:+bEuZxhWViZuVh5nNeW5DpuGyt/bmiLM2lCW6++XZkU=
+github.com/jalapeno-api-gateway/jagw-core v1.2.1-0.20220210203330-054df1dad886 h1:UMExW6/Yl6RSsKkaokZiRY6XG6P1vl7cP0wnGSxpJUA=
+github.com/jalapeno-api-gateway/jagw-core v1.2.1-0.20220210203330-054df1dad886/go.mod h1:+bEuZxhWViZuVh5nNeW5DpuGyt/bmiLM2lCW6++XZkU=
 github.com/jalapeno-api-gateway/protorepo-jagw-go v1.2.0 h1:YwWxgVE3N4MplDDBsBT+jkS5pwQyXFcUsz8stKlm/oU=
 github.com/jalapeno-api-gateway/protorepo-jagw-go v1.2.0/go.mod h1:CPDdUkBdUYu8OShpuAdGjOUNDBef6dvfmJGVtEKH/g8=
 github.com/jcmturner/aescts/v2 v2.0.0 h1:9YKLH6ey7H4eDBXW8khjYslgyqG2xZikXP0EQFKrle8=
@@ -115,7 +119,10 @@ github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475/go.mod h1:bCqn
 github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6LYCDYWNEvQ=
 github.com/rs/xid v1.2.1/go.mod h1:+uKXf+4Djp6Md1KODXJxgGQPKngRmWyn10oCKFzNHOQ=
 github.com/rs/zerolog v1.19.0/go.mod h1:IzD0RJ65iWH0w97OQQebJEvTZYvsCUm9WVLWBQrJRjo=
+github.com/sirupsen/logrus v1.8.1 h1:dJKuHgqk1NNQlqoA6BTlM1Wf9DOH3NBjQyu0h9+AZZE=
+github.com/sirupsen/logrus v1.8.1/go.mod h1:yWOB1SBYBC5VeMP7gHvWumXLIWorT60ONWic61uBYv0=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
+github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
@@ -155,6 +162,7 @@ golang.org/x/sync v0.0.0-20190423024810-112230192c58/go.mod h1:RxMgew5VJxzue5/jJ
 golang.org/x/sys v0.0.0-20180830151530-49385e6e1522/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
 golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
 golang.org/x/sys v0.0.0-20190412213103-97732733099d/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20191026070338-33540a1f6037/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20201119102817-f84b799fce68/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210423082822-04245dca01da/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=

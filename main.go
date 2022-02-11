@@ -2,29 +2,38 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"os"
 
 	"github.com/jalapeno-api-gateway/jagw-core/arango"
+	"github.com/jalapeno-api-gateway/jagw-core/logger"
+	"github.com/jalapeno-api-gateway/protorepo-jagw-go/jagw"
 	"github.com/jalapeno-api-gateway/subscription-service/helpers"
 	"github.com/jalapeno-api-gateway/subscription-service/kafka"
-	"github.com/jalapeno-api-gateway/subscription-service/subscriptionservice"
 	"github.com/jalapeno-api-gateway/subscription-service/pubsub"
-	"github.com/jalapeno-api-gateway/protorepo-jagw-go/jagw"
+	"github.com/jalapeno-api-gateway/subscription-service/subscriptionservice"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
 
 func main() {
-	log.Print("Starting Subscription Service ...")
-	arango.InitializeArangoDbAdapter(getDefaultArangoDbConfig())
+	logger.Init(logrus.StandardLogger(), "debug") // TODO: Pass this default log level through the environment variables through the helm chart
+
+	logrus.Trace("Starting Subscription Service.")
+
+	config := getDefaultArangoDbConfig()
+	arango.InitializeArangoDbAdapter(logrus.StandardLogger(), config)
+
 	pubsub.InitializeTopics()
 	kafka.StartEventConsumption()
 
 	serverAddress := os.Getenv("APP_SERVER_ADDRESS")
+
+	logger := logrus.WithField("serverAddress", serverAddress)
+	logger.Trace("Listening for traffic.")
 	lis, err := net.Listen("tcp", serverAddress)
 	if err != nil {
-		log.Fatalf("Failed to listen on %s: %v", serverAddress, err)
+		logger.WithError(err).Panic("Failed to listen for traffic.")
 	}
 
 	grpcServer := grpc.NewServer()
@@ -37,7 +46,7 @@ func main() {
 
 	jagw.RegisterSubscriptionServiceServer(grpcServer, subscriptionservice.NewServer())
 	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("Failed to serve gRPC server: %v", err)
+		logrus.WithError(err).Panic("Failed to server gRPC server.")
 	}
 }
 

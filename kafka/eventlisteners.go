@@ -2,9 +2,12 @@ package kafka
 
 import (
 	"github.com/jalapeno-api-gateway/jagw-core/model/class"
+	"github.com/sirupsen/logrus"
 )
 
 func StartEventConsumption() {
+	logrus.Debug("Starting Kafka event consumption.")
+
 	consumer := newSaramaConsumer()
 	lsNodeEventsConsumer := newPartitionConsumer(consumer, LSNODE_KAFKA_TOPIC)
 	lsLinkEventsConsumer := newPartitionConsumer(consumer, LSLINK_KAFKA_TOPIC)
