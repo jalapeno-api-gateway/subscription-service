@@ -34,10 +34,10 @@ func doesStringFilterMatch(metric protocol.Metric, filter *jagw.StringFilter) bo
 	}
 
 	valueAsString := fmt.Sprintf("%v", value)
-	if valueAsString == *filter.Value {
-		return true
-	} else {
-		return false
-	}
+	
+	valueMatches := valueAsString == *filter.Value
+	valueIsSupposedToMatch := filter.Operator == jagw.StringOperator_EQUAL.Enum()
+
+	return valueMatches && valueIsSupposedToMatch || !valueMatches && !valueIsSupposedToMatch
 }
 
