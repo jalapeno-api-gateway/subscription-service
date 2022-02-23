@@ -188,7 +188,9 @@ func (s *subscriptionServiceServer) SubscribeToTelemetryData(subscription *jagw.
 		event := (*msg).(events.TelemetryEvent)
 
 		if isSubscribed(event.Metric, subscription.StringFilters) {
-			response := createTelemetryResponse(event.Metric, subscription.Properties, subscription.Unflatten)
+			// Since Unflatten is an optional property, it might not be set
+			unflatten := subscription.Unflatten != nil && *subscription.Unflatten
+			response := createTelemetryResponse(event.Metric, subscription.Properties, unflatten)
 			err := responseStream.Send(response)
 			if err != nil {
 				logger.WithError(err).Error("Stream is aborting due to an error.")
