@@ -1,13 +1,14 @@
 package kafka
 
 import (
+	"os"
+
 	"github.com/Shopify/sarama"
 	"github.com/sirupsen/logrus"
 )
 
 func newSaramaConsumer() sarama.Consumer {
-	consumer, err := sarama.NewConsumer([]string{"10.20.1.24:30092"}, sarama.NewConfig())
-	// consumer, err := sarama.NewConsumer([]string{os.Getenv("KAFKA_ADDRESS")}, sarama.NewConfig())
+	consumer, err := sarama.NewConsumer([]string{os.Getenv("KAFKA_ADDRESS")}, sarama.NewConfig())
 	if err != nil {
 		logrus.WithError(err).Panic("Failed to create Sarama Consumer.")
 	}

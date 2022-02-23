@@ -7,7 +7,6 @@ import (
 	"github.com/jalapeno-api-gateway/jagw-core/arango"
 	"github.com/jalapeno-api-gateway/jagw-core/model/class"
 	"github.com/jalapeno-api-gateway/subscription-service/events"
-	"github.com/jalapeno-api-gateway/subscription-service/helpers"
 	"github.com/jalapeno-api-gateway/subscription-service/pubsub"
 	"github.com/sirupsen/logrus"
 )
