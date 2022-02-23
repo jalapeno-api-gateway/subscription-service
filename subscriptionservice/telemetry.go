@@ -16,7 +16,7 @@ const (
 	NameIdentifier = "measurement"
 )
 
-func createTelemetryResponse(metric protocol.Metric, properties []string, unflatten bool) *jagw.TelemetryEvent {
+func createTelemetryResponse(metric protocol.Metric, properties []string, unflatten *bool) *jagw.TelemetryEvent {
 	m := make(map[string]interface{})
 	m[TimeIdentifier] = metric.Time()
 	m[NameIdentifier] = metric.Name()
@@ -27,7 +27,7 @@ func createTelemetryResponse(metric protocol.Metric, properties []string, unflat
 		createMapForSelection(&m, metric, properties)
 	}
 
-	if unflatten {
+	if unflatten != nil && *unflatten {
 		Unflatten(&m)
 	}
 
