@@ -3,11 +3,17 @@ package kafka
 import (
 	"context"
 
+	protocol "github.com/influxdata/line-protocol"
 	"github.com/jalapeno-api-gateway/jagw-core/arango"
 	"github.com/jalapeno-api-gateway/jagw-core/model/class"
 	"github.com/jalapeno-api-gateway/subscription-service/events"
+	"github.com/jalapeno-api-gateway/subscription-service/helpers"
 	"github.com/jalapeno-api-gateway/subscription-service/pubsub"
 	"github.com/sirupsen/logrus"
+)
+
+const (
+	MeasurementIdentifier = "measurement"
 )
 
 func handleTopologyEvent(msg KafkaEventMessage, className class.Class) {
@@ -59,15 +65,17 @@ func publishTopologyEvent(logger *logrus.Entry, event events.TopologyEvent, clas
 }
 
 func handleTelemetryEvent(telemetryString string) {
-	if !containsIpAddress(telemetryString) { // Only telemetry events containing an IP-Address are supported (they are used as identifiers)
-		return
-	}
+	metric := parseTelemetryString(telemetryString)
+	telemetryEvent := events.TelemetryEvent{Measurement: metric.Name(), Metric: metric}
+	pubsub.PublishTelemetry(metric.Name(), telemetryEvent)
+}
 
-	if isLoopbackEvent(telemetryString) {
-		event := createLoopbackInterfaceEvent(telemetryString)
-		pubsub.LoopbackInterfaceTopic.Publish(event)
-	} else {
-		event := createPhysicalInterfaceEvent(telemetryString)
-		pubsub.PhysicalInterfaceTopic.Publish(event)
+func parseTelemetryString(telemetryString string) protocol.Metric {
+	handler := protocol.NewMetricHandler()
+	parser := protocol.NewParser(handler)
+	metric, err := parser.Parse([]byte(telemetryString))
+	if err != nil {
+		logrus.WithError(err).Panic("Failed to parse telemetry string.")
 	}
+	return metric[0]
 }

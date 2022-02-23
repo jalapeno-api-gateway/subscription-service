@@ -3,6 +3,7 @@ package subscriptionservice
 import (
 	"context"
 
+	"github.com/jalapeno-api-gateway/jagw-core/jagwerror"
 	"github.com/jalapeno-api-gateway/protorepo-jagw-go/jagw"
 	"github.com/jalapeno-api-gateway/subscription-service/events"
 	"github.com/jalapeno-api-gateway/subscription-service/helpers"
@@ -168,47 +169,33 @@ func (s *subscriptionServiceServer) SubscribeToTelemetryData(subscription *jagw.
 	logger := logrus.WithFields(logrus.Fields{"clientIp": getClientIp(responseStream.Context()), "grpcFunction": "SubscribeToTelemetryData"})
 	logger.Debug("Incoming request.")
 
-	cctxA, cancelA := context.WithCancel(context.Background())
-	cctxB, cancelB := context.WithCancel(context.Background())
-	physicalInterfaceSubscription := pubsub.PhysicalInterfaceTopic.Subscribe(logger)
-	loopbackInterfaceSubscription := pubsub.LoopbackInterfaceTopic.Subscribe(logger)
+	cctx, cancel := context.WithCancel(context.Background())
+	topic, err := pubsub.GetTelemetryTopic(*subscription.SensorPath)
+	if err != nil {
+		e := jagwerror.Error{ErrorCode: jagwerror.NOT_FOUND, Message: "Measurement not found."}
+		grpcError := jagwerror.GetGrpcError(&e)
+		cancel()
+		return grpcError
+	}
+
+	topicSubscription := topic.Subscribe(logger)
 	
 	defer func() {
-		physicalInterfaceSubscription.Unsubscribe(logger)
-		loopbackInterfaceSubscription.Unsubscribe(logger)
+		topicSubscription.Unsubscribe(logger)
 	}()
 
-	go func() {
-		physicalInterfaceSubscription.Receive(cctxA, func(msg *interface{}) {
-			event := (*msg).(events.PhysicalInterfaceEvent)
-			logger.Debug("Subscription received new message.")
+	topicSubscription.Receive(cctx, func(msg *interface{}) {
+		event := (*msg).(events.TelemetryEvent)
 
-			if len(subscription.InterfaceIds) == 0 || isSubscribed(subscription.InterfaceIds, event.Hostname, event.LinkID) {
-				response := convertPhysicalInterfaceEvent(event, subscription.PropertyNames)
-				logger.Debug("Sending response through gRPC stream.")
-				err := responseStream.Send(response)
-				if err != nil {
-					logger.WithError(err).Error("Stream is aborting due to an error.")
-					cancelA()
-				}
-			}
-		})
-	}()
-
-	loopbackInterfaceSubscription.Receive(cctxB, func(msg *interface{}) {
-		event := (*msg).(events.LoopbackInterfaceEvent)
-		logger.Debug("Subscription received new message.")
-
-		if len(subscription.InterfaceIds) == 0 || isSubscribed(subscription.InterfaceIds, event.Hostname, event.LinkID) {
-			response := convertLoopbackInterfaceEvent(event, subscription.PropertyNames)
-			logger.Debug("Sending response through gRPC stream.")
+		if isSubscribed(event.Metric, subscription.StringFilters) {
+			response := createTelemetryResponse(event.Metric, subscription.Properties, *subscription.Unflatten)
 			err := responseStream.Send(response)
 			if err != nil {
 				logger.WithError(err).Error("Stream is aborting due to an error.")
-				cancelB()
+				cancel()
 			}
 		}
 	})
-	// TODO return status.Errorf(codes.)
+
 	return nil
 }

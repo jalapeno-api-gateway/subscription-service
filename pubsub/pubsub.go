@@ -2,9 +2,11 @@ package pubsub
 
 import (
 	"context"
+	"errors"
 	"sync"
 
 	"github.com/google/uuid"
+	"github.com/jalapeno-api-gateway/subscription-service/events"
 	"github.com/sirupsen/logrus"
 )
 
@@ -16,17 +18,19 @@ type Subscription struct {
 }
 
 type threadSafeTopic struct {
+	name string
 	sync.Mutex
 	subscriptions []*Subscription
 }
+
 
 var LsNodeTopic *threadSafeTopic
 var LsLinkTopic *threadSafeTopic
 var LsPrefixTopic *threadSafeTopic
 var LsSrv6SidTopic *threadSafeTopic
 var LsNodeEdgeTopic *threadSafeTopic
-var PhysicalInterfaceTopic *threadSafeTopic
-var LoopbackInterfaceTopic *threadSafeTopic
+
+var telemetryTopics []*threadSafeTopic
 
 func InitializeTopics() {
 	logrus.Debug("Initializing PubSub Topics")
@@ -35,8 +39,8 @@ func InitializeTopics() {
 	LsPrefixTopic = &threadSafeTopic{}
 	LsSrv6SidTopic = &threadSafeTopic{}
 	LsNodeEdgeTopic = &threadSafeTopic{}
-	PhysicalInterfaceTopic = &threadSafeTopic{}
-	LoopbackInterfaceTopic = &threadSafeTopic{}
+
+	telemetryTopics = []*threadSafeTopic{}
 }
 
 func (topic *threadSafeTopic) Subscribe(logger *logrus.Entry) *Subscription {
@@ -102,4 +106,39 @@ func (subscription *Subscription) Receive(ctx context.Context, callback func(eve
 func initializeSubscription(subscription *Subscription) {
 	subscription.events = make(chan *interface{})
 	subscription.abort = make(chan struct{})
+}
+
+func PublishTelemetry(measurement string, telemetryEvent events.TelemetryEvent) {
+	for _, topic := range telemetryTopics {
+		if topic.name == measurement {
+			topic.Publish(telemetryEvent)
+			return
+		}
+	}
+	logrus.WithField("measurement", measurement).Debug("Creating new PubSub topic.")
+	topic := createTelemetryTopic(measurement)
+	topic.Publish(telemetryEvent)
+}
+
+func ensureTelemetryTopic(measurement string) *threadSafeTopic {
+	topic, err := GetTelemetryTopic(measurement)
+	if err != nil {
+		return topic
+	}
+	return createTelemetryTopic(measurement)
+}
+
+func GetTelemetryTopic(measurement string) (*threadSafeTopic, error) {
+	for _, topic := range telemetryTopics {
+		if topic.name == measurement {
+			return topic, nil
+		}
+	}
+	return nil, errors.New("No topic found for this measurement.")
+}
+
+func createTelemetryTopic(measurement string) *threadSafeTopic {
+	topic := &threadSafeTopic{name: measurement}
+	telemetryTopics = append(telemetryTopics, topic)
+	return topic
 }
