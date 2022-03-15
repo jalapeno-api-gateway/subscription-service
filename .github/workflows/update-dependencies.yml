@@ -21,6 +21,7 @@ jobs:
       - name: Update dependencies
         run: |
           go get github.com/jalapeno-api-gateway/jagw-core@${{ inputs.tag_name }}
+          go get github.com/jalapeno-api-gateway/protorepo-jagw-go@${{ inputs.tag_name }}
           go mod tidy
       - name: Create PR for local changes
         id: cpr
