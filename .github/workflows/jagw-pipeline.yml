@@ -31,7 +31,7 @@ jobs:
       protorepo_jagw_go_ref: ${{ github.event.inputs.protorepo_jagw_go_ref }}
   call-merge-to-main:
     needs: call-update-dependencies
-    if: github.event.inputs.type == 'release'
+    if: github.event.inputs.release_or_dev == 'release'
     uses: jalapeno-api-gateway/subscription-service/.github/workflows/merge-to-main.yml@dev
   call-create-tag:
     needs: [call-merge-to-main]
