@@ -11,7 +11,7 @@ COPY . ./
 
 # Skaffold passes in debug-oriented compiler flags
 ARG SKAFFOLD_GO_GCFLAGS
-RUN go build -gcflags="${SKAFFOLD_GO_GCFLAGS}" -o /app/request-service .
+RUN go build -gcflags="${SKAFFOLD_GO_GCFLAGS}" -o /app/subscription-service .
 
 
 FROM gcr.io/distroless/base
