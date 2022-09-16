@@ -1,7 +1,34 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
-    "configurations": []
+    "configurations": [
+        {
+            "name": "Kubernetes: Run/Debug",
+            "type": "cloudcode.kubernetes",
+            "request": "launch",
+            "skaffoldConfig": "${workspaceFolder}/skaffold.yaml",
+            "watch": true,
+            "cleanUp": true,
+            "portForward": true,
+            "imageRegistry": "insost/jagw-subscription-service",
+            "debug": [
+                {
+                    "image": "insost/jagw-subscription-service",
+                    "containerName": "subscription-service",
+                    "sourceFileMap": {
+                        "${workspaceFolder}": "/app"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "subscription-service",
+            "type": "go",
+            "request": "attach",
+            "mode": "remote",
+            "host": "localhost",
+            "port": 56268,
+            "cwd": "${workspaceFolder}",
+            "remotePath": "/app"
+        }
+    ]
 }

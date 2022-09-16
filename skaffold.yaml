@@ -1,0 +1,33 @@
+apiVersion: skaffold/v2beta29
+kind: Config
+metadata:
+  name: subscription-service
+build:
+  artifacts:
+  - image: insost/jagw-subscription-service
+    docker:
+      dockerfile: Dockerfile # file for debugging / deploying
+    sync:
+      manual:
+        - src: '**/*.go'
+          dest: .
+
+deploy:
+  statusCheck: false # related to https://github.com/rancher/rancher/issues/32676
+  statusCheckDeadlineSeconds: 300 # max time to wait for deplyoment to become ready (maybe bug sometimes it takes 2 minutes)
+  kubectl:
+    defaultNamespace: jagw-dev-dominique
+    manifests:
+    - kubernetes/subscription-service-cm.yaml
+    - kubernetes/subscription-service-deploy.yaml
+    - kubernetes/subscription-service-svc.yaml
+    - kubernetes/subscription-service-secret.yaml
+
+profiles:
+  - name: hot-reload
+    activation:
+      - command: dev
+    patches:
+      - op: replace
+        path: /build/artifacts/0/docker/dockerfile # overwrite Dockerfile in gloabl skaffold config
+        value: Dockerfile.dev

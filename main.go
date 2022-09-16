@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"time"
 
 	"github.com/jalapeno-api-gateway/jagw-core/arango"
 	"github.com/jalapeno-api-gateway/jagw-core/logger"
@@ -14,6 +15,7 @@ import (
 	"github.com/jalapeno-api-gateway/subscription-service/subscriptionservice"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 )
 
 func main() {
@@ -36,7 +38,12 @@ func main() {
 		logger.WithError(err).Panic("Failed to listen for traffic.")
 	}
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.KeepaliveParams(keepalive.ServerParameters{
+			Time:    30 * time.Second,
+			Timeout: 15 * time.Second,
+		}),
+	)
 
 	signals := helpers.WatchInterruptSignals()
 	go func() {
@@ -52,9 +59,9 @@ func main() {
 
 func getDefaultArangoDbConfig() arango.ArangoDbConfig {
 	return arango.ArangoDbConfig{
-		Server: fmt.Sprintf("http://%s", os.Getenv("ARANGO_ADDRESS")),
-		User: os.Getenv("ARANGO_DB_USER"),
+		Server:   fmt.Sprintf("http://%s", os.Getenv("ARANGO_ADDRESS")),
+		User:     os.Getenv("ARANGO_DB_USER"),
 		Password: os.Getenv("ARANGO_DB_PASSWORD"),
-		DbName: os.Getenv("ARANGO_DB_NAME"),
+		DbName:   os.Getenv("ARANGO_DB_NAME"),
 	}
 }
