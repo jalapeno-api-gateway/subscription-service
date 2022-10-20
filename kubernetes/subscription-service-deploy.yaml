@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "subscription-service"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "subscription-service"
+  template:
+    metadata:
+      labels:
+        app: "subscription-service"
+    spec:
+      containers:
+        - image: "insost/jagw-subscription-service:dev-40"
+          ports:
+          - containerPort: 9000
+            protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: subscription-service-config
+            - secretRef:
+                name: subscription-service-secret
+          imagePullPolicy: "Always"
+          name: "subscription-service"
+          resources:
+            requests:
+              memory: "50Mi"
+              cpu: "10m"
+            limits:
+              memory: "1024Mi"
+              cpu: "1"
